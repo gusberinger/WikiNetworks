@@ -22,7 +22,8 @@ buffer = deque()
 
 
 def write_buffer(buffer):
-    with open(ROOT.joinpath(EDGE_LIST_PATH), "a") as f:
+    """Write whatever is in the buffer queue to the edgelist.csv file."""
+    with open(EDGE_LIST_PATH, "a") as f:
         f.write("\n".join(buffer))
         f.write("\n")
 
@@ -40,5 +41,6 @@ for i, row in tqdm(enumerate(db.sdow_cursor, 1), total = ROW_COUNT):
     if i % (10 ** 6) == 0:
         write_buffer(buffer)
         buffer = deque()
+
 
 write_buffer(buffer)
