@@ -3,10 +3,9 @@ import pickle
 from helpers import *
 import pandas as pd
 import numpy as np
-import scipy.sparse
+from scipy.sparse import lil_matrix
 from tqdm import tqdm
 from multiprocessing import Pool
-import copy 
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -19,7 +18,6 @@ with open(MATRIX_INDEX_PATH, "rb") as f:
 
 
 MATRIX_SIZE = len(nodes_list)
-# logging.info("Creating empty matrix")
 
 
 def id_key(wiki_id : int) -> int:
@@ -37,8 +35,8 @@ def wiki_df_to_matrix_df(df):
     return df
 
 
-def dense_df_to_sparse(row):
-    df, mat = row
+def dense_df_to_sparse(df):
+    mat = lil_matrix((MATRIX_SIZE, MATRIX_SIZE))
     for row in df.itertuples():
         mat[row.source, row.target] = 1
     mat = mat.tocsr()
@@ -54,22 +52,20 @@ def parallelize_dataframe(df, func, n_cores=12):
     return df
 
 
-def parallelize_matrix_creation(df, template, n_cores=12):
+def parallelize_matrix_creation(df, n_cores=12):
     df_split = np.array_split(df, n_cores)
-    tuple_list = [(split, copy.copy(template)) for split in df_split]
     pool = Pool(n_cores)
-    mat = sum(pool.map(dense_df_to_sparse, tuple_list))
+    mat = sum(pool.map(dense_df_to_sparse, df_split))
     pool.close()
     pool.join()
-    print(type(mat))
     return mat
 
 
 
 
 if __name__ == "__main__":
-    logging.info("Creating empty lil_matrix")
-    EMPTY_MAT = scipy.sparse.lil_matrix((MATRIX_SIZE, MATRIX_SIZE))
+    # logging.info("Creating empty lil_matrix")
+    # EMPTY_MAT = scipy.sparse.lil_matrix((MATRIX_SIZE, MATRIX_SIZE))
 
     logging.info("Loading edge list dataframe")
 
@@ -79,7 +75,7 @@ if __name__ == "__main__":
         header=None, 
         names = ["source", "target"],
         dtype=np.uint32, 
-        nrows = 10 ** 3) 
+        nrows = 10 ** 7) 
 
     logging.info("converting wiki ids to matrix indices")
     lil_df = parallelize_dataframe(edge_df, wiki_df_to_matrix_df)
@@ -87,7 +83,8 @@ if __name__ == "__main__":
     logging.info("done.")
 
 
-    mat = parallelize_matrix_creation(lil_df, EMPTY_MAT)
+    mat = dense_df_to_sparse(lil_df)
+    # mat = parallelize_matrix_creation(lil_df)
     # print(type)
 
     logging.info("created sparse matrix")
