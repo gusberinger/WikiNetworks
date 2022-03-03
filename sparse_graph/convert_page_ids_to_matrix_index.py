@@ -67,15 +67,25 @@ if __name__ == "__main__":
 
         lil_df = parallelize_dataframe(edge_df_chunk, links_df_to_matrix_df, n_cores=6)
         edge_df_chunk = None
-        lil_df.to_parquet(DUMP_PATH.joinpath(f"lil_df-{i}.parquet"))
-        logging.info("Processed chunck {i}.")
+        lil_df.to_parquet(DUMP_PATH.joinpath(f"lil_df_temp-{i:03}.parquet"))
+        logging.info(f"Processed chunk {i}.")
 
     
-    glob = list(DUMP_PATH.glob("lil_df-*.parquet"))
+    # The file size will be unevenly distributed, so we combine them into one dataframe and then split them evenly.
+    glob = list(DUMP_PATH.glob("lil_df_temp-*.parquet"))
     logging.info(f"Combining {len(glob)} parquet files.")
     df = pd.concat((pd.read_parquet(path) for path in glob))
-    logging.info(f"Saving combined files.")
-    df.to_parquet(DUMP_PATH.joinpath("lil_df.parquet"))
-    logging.info("Removing sepearte parquet files.")
+
+    
+    logging.info("Removing old parquet files.")
     for path in glob:
-        path.unlink()
+        path.unlink
+
+    
+    df_split = np.array_split(df, 100)
+    df = None # not needed anymore
+
+    for i, split in enumerate(df_split):
+        split.to_parquet(DUMP_PATH.joinpath("lil_df").joinpath(f"lil_df-{i:03}.parquet"))
+
+
