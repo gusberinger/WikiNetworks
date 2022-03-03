@@ -1,3 +1,7 @@
+"""
+For manually parsing the wiki. Wnat to lookup a title and get the final page id, not a redirect page.
+"""
+
 from helpers import *
 import pandas as pd
 from database import Database
@@ -11,7 +15,7 @@ t0 = time.time()
 print(f"{time.time() - t0:.2f} - Loading redirects data.")
 redirects_df = pd.read_sql("SELECT * FROM redirects", db.sdow_conn)
 
-print(f"{time.time() - t0:.2f} - Loading titles that redirect.")
+print(f"{time.time() - t0:.2f} - Loading from pages table all pages that redirect.")
 titles_redirects_df = pd.read_sql("SELECT id, title FROM pages WHERE is_redirect=1", db.sdow_conn)
 
 print(f"{time.time() - t0:.2f} - Loading titles that do not redirect.")
