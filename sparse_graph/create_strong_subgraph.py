@@ -35,7 +35,7 @@ def _delete_from_csr(mat : sparse.csr.csr_matrix, row_indices=[], col_indices=[]
         return mat
 
 
-def get_largest_component(matrix : sparse.csr.csr_matrix, labels, 
+def get_largest_component(matrix, labels, 
     directed : bool = True, connection : str = "strong"):
     """
     Parameters
@@ -71,3 +71,4 @@ if __name__ == "__main__":
     node_list = find_from_big.node_list
     sub_graph, sub_labels = get_largest_component(mat, node_list)
     print(len(sub_labels))
+    print(len(node_list))
