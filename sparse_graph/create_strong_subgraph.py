@@ -1,38 +1,22 @@
+from typing import List
 from scipy import sparse
-from scipy.sparse import csr_matrix, load_npz
+from scipy.sparse import load_npz
 import numpy as np
 from helpers import *
 import find_from_big
 
 
-def _delete_from_csr(mat : sparse.csr.csr_matrix, row_indices=[], col_indices=[]):
+def _delete_from_csr(mat, indices : List[int]):
     """
-    source: https://stackoverflow.com/questions/13077527
-    Remove the rows (denoted by ``row_indices``) and columns (denoted by ``col_indices``) from the CSR sparse matrix ``mat``.
+    Remove the indices from the CSR sparse matrix ``mat``.
     """
-    rows = []
-    cols = []
-    if row_indices:
-        rows = list(row_indices)
-    if col_indices:
-        cols = list(col_indices)
+    if mat.shape[0] != mat.shape[1]:
+        raise ValueError("Matrix must be square.")
 
-    if len(rows) > 0 and len(cols) > 0:
-        row_mask = np.ones(mat.shape[0], dtype=bool)
-        row_mask[rows] = False
-        col_mask = np.ones(mat.shape[1], dtype=bool)
-        col_mask[cols] = False
-        return mat[row_mask][:,col_mask]
-    elif len(rows) > 0:
-        mask = np.ones(mat.shape[0], dtype=bool)
-        mask[rows] = False
-        return mat[mask]
-    elif len(cols) > 0:
-        mask = np.ones(mat.shape[1], dtype=bool)
-        mask[cols] = False
-        return mat[:,mask]
-    else:
-        return mat
+    mask = np.ones(mat.shape[0], dtype=bool)
+    mask[indices] = False
+    return mat[mask][:,mask]
+
 
 
 def get_largest_component(matrix : sparse.csr.csr_matrix, labels, 
@@ -62,7 +46,7 @@ def get_largest_component(matrix : sparse.csr.csr_matrix, labels,
     indices = np.where(component_labels == largest)[0]
     unconnected_indeces = list(set(range(mat.shape[0])) - set(indices))
     sub_labels = list(np.delete(labels, unconnected_indeces))
-    sub_matrix = _delete_from_csr(mat, row_indices=unconnected_indeces, col_indices=unconnected_indeces)
+    sub_matrix = _delete_from_csr(mat, unconnected_indeces)
     return sub_matrix, sub_labels
 
 
