@@ -12,7 +12,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 
-with open(MATRIX_INDEX_PATH, "rb") as f:
+with open(NODES_LIST_PATH, "rb") as f:
     nodes_list = pickle.load(f)
 
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     df_split = np.array_split(df, 100)
     df = None # not needed anymore
 
-    for i, split in enumerate(df_split):
+    for i, split in enumerate(df_split, 1):
         split.to_parquet(DUMP_PATH.joinpath("lil_df").joinpath(f"lil_df-{i:03}.parquet"))
 
 
