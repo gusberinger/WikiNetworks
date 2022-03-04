@@ -1,5 +1,4 @@
 import logging
-from database import Database
 import pickle
 from helpers import *
 import pandas as pd
@@ -44,17 +43,11 @@ def parallelize_dataframe(df, func, n_cores=12):
     return df
 
 if __name__ == "__main__":
-    # logging.info("Creating empty lil_matrix")
 
+    db = Database()
 
-    # logging.info("Loading edge list dataframe")
-    # there are approximately 562,142,540 total rows. For testing purposes it is time consuming to load all of them.
-
-
-    db = Database(DATABASE_PATH)
-
-
-    # Multiprocessing doesn't work correctly for chunks greater than 2GB
+    # Multiprocessing doesn't work correctly for chunks greater than 2GB due to python bug.
+    # Split the process into six chunks to avoid memory errors.
     LINKS_TABLE_SIZE = db.sdow_conn.execute("SELECT COUNT() FROM links").fetchone()[0]
     chunksize = LINKS_TABLE_SIZE // 6
 
