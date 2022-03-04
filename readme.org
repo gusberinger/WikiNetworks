@@ -1,0 +1,4 @@
+TODO:
+- [ ] Separate downloads module into one folder.
+- [ ] Consolidate download scripts into one file.
+- [ ] Remove unnecessary sdow code. 
