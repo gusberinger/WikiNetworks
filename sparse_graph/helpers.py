@@ -11,7 +11,7 @@ import numpy as np
 
 WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php'
 ROOT_PATH = Path(__file__).parent.parent
-DUMP_PATH = ROOT_PATH.joinpath("download_scripts", "dump")
+DUMP_PATH = ROOT_PATH.joinpath("dump")
 DATABASE_PATH = DUMP_PATH.joinpath("sdow.sqlite")
 SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.npz")
 NODES_LIST_PATH = DUMP_PATH.joinpath("nodes_list.pickle")
@@ -57,3 +57,6 @@ class NodeList(object):
 		node_list = np.delete(node_list, indices)
 		self.node_dict = {k:v for k, v in enumerate(node_list)}
 
+
+if __name__ == "__main__":
+	node_list = NodeList()
