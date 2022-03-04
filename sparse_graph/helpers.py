@@ -2,8 +2,6 @@
 Helper classes and methods.
 """
 
-import logging
-import requests
 from pathlib import Path
 import sqlite3
 
