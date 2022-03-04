@@ -1,3 +1,7 @@
+"""
+Convert the sqlite3 database into 200 edge lists dataframes where the edge corresponds to an index in the graph adjacency matrix.
+"""
+
 import logging
 import pickle
 from helpers import *
@@ -20,7 +24,6 @@ def id_key(wiki_id : int) -> int:
         return nodes_list.index(wiki_id)
     except ValueError:
         return np.nan
-
 
 
 
