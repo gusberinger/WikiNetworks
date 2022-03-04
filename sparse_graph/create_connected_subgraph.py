@@ -1,10 +1,11 @@
+import logging
 from typing import List
 from scipy import sparse
 from scipy.sparse import load_npz
 import numpy as np
 from helpers import *
-import find_from_big
 
+log = logging.getLogger(__name__)
 
 def _delete_from_csr(mat, indices : List[int]):
     """
@@ -44,15 +45,20 @@ def get_largest_component(matrix, labels,
     unique_component_labels, count = np.unique(component_labels, return_counts=True)
     largest = unique_component_labels[np.argmax(count)]
     indices = np.where(component_labels == largest)[0]
-    unconnected_indeces = list(set(range(mat.shape[0])) - set(indices))
-    sub_labels = list(np.delete(labels, unconnected_indeces))
-    sub_matrix = _delete_from_csr(mat, unconnected_indeces)
-    return sub_matrix, sub_labels
+    unconnected_indices = list(set(range(mat.shape[0])) - set(indices))
+    # sub_labels = list(np.delete(labels, unconnected_indeces))
+    labels.remove_indices(unconnected_indices)
+    sub_matrix = _delete_from_csr(mat, unconnected_indices)
+    return sub_matrix, labels
 
 
 if __name__ == "__main__":
+    # log = logging.getLogger(__name__)
+    log.info("test1")
+    log.warning("test")
     mat = load_npz(SPARSE_MATRIX_PATH)
-    node_list = find_from_big.node_list
+    node_list = load_node_list()
+    log.info("getting subgraph")
     sub_graph, sub_labels = get_largest_component(mat, node_list)
     print(len(sub_labels))
     print(len(node_list))
