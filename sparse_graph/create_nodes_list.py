@@ -16,7 +16,7 @@ nodes_list = SortedList(pages_df["id"])
 logging.info("converted to SortedList")
 
 
-with open(MATRIX_INDEX_PATH, "wb") as f:
+with open(NODES_LIST_PATH, "wb") as f:
     pickle.dump(nodes_list, f)
 
 logging.info("created node list file")
