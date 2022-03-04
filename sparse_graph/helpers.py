@@ -13,11 +13,11 @@ EDGE_LIST_PATH = DUMP_PATH.joinpath("edgelist.csv")
 DATABASE_PATH = DUMP_PATH.joinpath("sdow.sqlite")
 MAPPINGS_PATH = DUMP_PATH.joinpath("mappings.pickle")
 OBSERVED_LIST_PATH = DUMP_PATH.joinpath("observed_list.pickle")
-SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.pickle")
+SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.npz")
 IN_EDGE_REPORT_PATH = DUMP_PATH.joinpath("in_edge_report.csv")
 OUT_EDGE_REPORT_PATH = DUMP_PATH.joinpath("out_edge_report.csv")
 GEXF_PATH = DUMP_PATH.joinpath("dense_graph.gexf")
-MATRIX_INDEX_PATH = DUMP_PATH.joinpath("matrix_key.pickle")
+NODES_LIST_PATH = DUMP_PATH.joinpath("nodes_list.pickle")
 
 def fetch_wikipedia_pages_info(page_ids, database):
   """Fetched page information such as title, URL, and image thumbnail URL for the provided page IDs.
