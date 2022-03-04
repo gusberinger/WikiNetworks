@@ -11,7 +11,8 @@ export LC_ALL=C
 # By default, the latest Wikipedia dump will be downloaded. If a download date in the format
 # YYYYMMDD is provided as the first argument, it will be used instead.
 if [[ $# -eq 0 ]]; then
-  DOWNLOAD_DATE=$(wget -q -O- https://dumps.wikimedia.your.org/enwiki/ | grep -Po '\d{8}' | sort | tail -n1)
+  echo "test"
+  DOWNLOAD_DATE=$(wget -q -O- https://dumps.wikimedia.org/enwiki/ | grep -Eo '\d{8}' | sort | tail -n1)
 else
   if [ ${#1} -ne 8 ]; then
     echo "[ERROR] Invalid download date provided: $1"
@@ -24,7 +25,7 @@ fi
 ROOT_DIR=`pwd`
 OUT_DIR="dump"
 
-DOWNLOAD_URL="https://dumps.wikimedia.your.org/enwiki/$DOWNLOAD_DATE"
+DOWNLOAD_URL="https://dumps.wikimedia.org/enwiki/$DOWNLOAD_DATE"
 TORRENT_URL="https://tools.wmflabs.org/dump-torrents/enwiki/$DOWNLOAD_DATE"
 
 SHA1SUM_FILENAME="enwiki-$DOWNLOAD_DATE-sha1sums.txt"
