@@ -10,9 +10,9 @@ import numpy as np
 import logging
 
 logging.basicConfig(
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
+	format='%(asctime)s %(levelname)-8s %(message)s',
+	level=logging.INFO,
+	datefmt='%Y-%m-%d %H:%M:%S')
 
 
 WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php'
@@ -22,6 +22,8 @@ DATABASE_PATH = DUMP_PATH.joinpath("sdow.sqlite")
 SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.npz")
 NODES_LIST_PATH = DUMP_PATH.joinpath("nodes_list.pickle")
 
+US_ARTICLE_ID = 3434750
+
 class Database(object):
 	def __init__(self):
 		if not Path(DATABASE_PATH).is_file():
@@ -30,25 +32,29 @@ class Database(object):
 		self.sdow_cursor = self.sdow_conn.cursor()
 
 class NodeList(object):
-	def __init__(self) -> None:
+	def __init__(self, testing : bool = False) -> None:
 		db = Database()
-		pages_df = pd.read_sql("SELECT id FROM pages where is_redirect=0", db.sdow_conn)
-		node_list = sorted(pages_df["id"])
-		node_dict = {k:v for k, v in enumerate(node_list)}
+		if testing:
+			node_list = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+		else:
+			pages_df = pd.read_sql("SELECT id FROM pages where is_redirect=0", db.sdow_conn)
+			node_list = sorted(pages_df["id"])
+		node_dict = {article_id:index for index, article_id in enumerate(node_list)}
 		self.node_dict = node_dict
+		self.node_list = node_list
 
 	def find_index(self, article_id : int, safe = True):
 		if safe:
 			try:
-				return self.labels.index(article_id)
-			except ValueError:
+				return self.node_dict[article_id]
+			except KeyError:
 				return np.nan
 		else:
-			return self.labels.index(article_id) 
+			return self.node_dict[article_id]
 
 
 	def find_article_id(self, index : int):
-		return self.labels[index]
+		return self.node_list[index]
 
 
 	def remove_indices(self, indices : List[int]) -> None:
@@ -57,11 +63,12 @@ class NodeList(object):
 			[(0, A), (1, B), (2, D), (3, E), (4, F)]
 		"""
 		# ensure order of dataframe
-		df = pd.DataFrame(self.node_dict.items(), columns = ["index", "label"])
+		df = pd.DataFrame(self.node_dict.items(), columns = ["label", "index"])
 		df = df.sort_values(by = ["index"])
 		df = df.drop(indices, axis=0)
 		node_list = list(df["label"])
-		self.node_dict = {k:v for k, v in enumerate(node_list)}
+		self.node_dict = {article_id:index for index, article_id in enumerate(node_list)}
+		self.node_list = node_list
 
 	def __len__(self):
 		return len(self.node_dict.items())
@@ -79,6 +86,6 @@ def load_node_list():
 
 
 if __name__ == "__main__":
-	node_list = load_node_list()
+	node_list = NodeList(testing = True)
 	node_list.remove_indices([2,3])
 	print(node_list.node_dict)
