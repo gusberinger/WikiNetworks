@@ -3,7 +3,6 @@ from scipy import sparse
 from scipy.sparse import load_npz
 import numpy as np
 from helpers import *
-import find_from_big
 
 
 def _delete_from_csr(mat, indices : List[int]):
