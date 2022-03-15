@@ -3,21 +3,24 @@ from re import sub
 import string
 import scipy.sparse as sp
 import networkx as nx
-import create_connected_subgraph
-
+from create_connected_subgraph import SparseGraph
+from helpers import *
 
 def _column_name_generator():
     for i in itertools.count(1):
         for p in itertools.product(string.ascii_uppercase, repeat=i):
             yield ''.join(p)
 
-G = nx.binomial_graph(1000, .1, directed = True)
-adj_array = nx.adjacency_matrix(G).toarray()
-adj = sp.csr_matrix(adj_array)
 
-gen_labels = _column_name_generator()
-labels = [next(gen_labels) for _ in range(adj.shape[0])]
+if __name__ == "__main__":
+    G = nx.binomial_graph(200, 5 / 200, directed = True)
+    adj = nx.adjacency_matrix(G).to_scipy_sparse_matrix()
+    gen_labels = _column_name_generator()
+    labels = NodeList([next(gen_labels) for _ in range(adj.shape[0])])
+    mainGraph = SparseGraph(adj, labels)
+    sub_adj, sub_labels = mainGraph.get_largest_component()
 
-sub_adj = create_connected_subgraph.get_largest_component(adj, labels)
 
-print(sub_adj)
+    with open(TESTING_MATRIX_PATH, "wb") as f:
+        pickle.dump((sub_adj, sub_labels), f)
+
