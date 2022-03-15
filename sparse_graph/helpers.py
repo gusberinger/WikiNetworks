@@ -21,7 +21,7 @@ DUMP_PATH = ROOT_PATH.joinpath("dump")
 DATABASE_PATH = DUMP_PATH.joinpath("sdow.sqlite")
 SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.npz")
 NODES_LIST_PATH = DUMP_PATH.joinpath("nodes_list.pickle")
-
+TESTING_MATRIX_PATH = DUMP_PATH.joinpath("testing_matrix.pickle")
 US_ARTICLE_ID = 3434750
 
 class Database(object):
@@ -32,11 +32,11 @@ class Database(object):
 		self.sdow_cursor = self.sdow_conn.cursor()
 
 class NodeList(object):
-	def __init__(self, testing : bool = False) -> None:
-		db = Database()
-		if testing:
-			node_list = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	def __init__(self, custom : List = []) -> None:
+		if custom:
+			node_list = custom
 		else:
+			db = Database()
 			pages_df = pd.read_sql("SELECT id FROM pages where is_redirect=0", db.sdow_conn)
 			node_list = sorted(pages_df["id"])
 		node_dict = {article_id:index for index, article_id in enumerate(node_list)}
@@ -72,6 +72,9 @@ class NodeList(object):
 
 	def __len__(self):
 		return len(self.node_dict.items())
+
+	def __str__(self):
+		return str(self.node_list)
 
 def load_node_list():
 	if Path(NODES_LIST_PATH).is_file():
