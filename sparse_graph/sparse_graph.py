@@ -1,6 +1,9 @@
 import logging
+import pickle
 from re import sub
+import sqlite3
 from typing import Any, List, Optional, Union
+import pandas as pd
 from scipy import sparse
 from scipy.sparse import load_npz
 import numpy as np
@@ -30,7 +33,7 @@ class SparseLabels:
 		return SparseLabels(new_df)
 
 
-def load_labels(from_scratch = False) -> 'SparseLabels':
+def load_wiki_labels(from_scratch = False) -> 'SparseLabels':
 
 	# load pickled to avoid generating every time. 
 	if not from_scratch and Path(SPARSE_LABEL_PATH).is_file():
@@ -43,7 +46,9 @@ def load_labels(from_scratch = False) -> 'SparseLabels':
 			raise IOError('Specified SQLite file "{0}" does not exist.'.format(DATABASE_PATH))
 			
 		sdow_conn = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
-		labels_df = pd.read_sql("SELECT id, title FROM pages where is_redirect=0", sdow_conn, columns=["article_id", "title"])
+		labels_df = pd.read_sql("SELECT id, title FROM pages where is_redirect=0", sdow_conn)
+		labels_df = labels_df.rename(columns={"id": "article_id"})
+		print(labels_df.head())
 		labels_df = labels_df.sort_values(by = ["article_id"])
 
 		labels = SparseLabels(labels_df)
@@ -52,6 +57,9 @@ def load_labels(from_scratch = False) -> 'SparseLabels':
 			pickle.dump(labels, f)
 		
 		return labels
+
+def load_wiki_graph():
+	
 
 
 def _delete_from_csr(mat, indices : List[int]):
@@ -77,10 +85,9 @@ def _delete_from_csr(mat, indices : List[int]):
 
 class SparseGraph:
 
-	def __init__(self, adjacency, labels = None) -> None:
+	def __init__(self, adjacency, labels) -> None:
 		self.adjacency = adjacency
-		# self.adjacency_csc = adjacency.tocsc()
-		self.labels = SparseLabels
+		self.labels = labels
 		self.in_degrees = None
 		self.out_degrees = None
 
@@ -109,10 +116,10 @@ class SparseGraph:
 		largest = unique_component_labels[np.argmax(count)]
 		indices = np.where(component_labels == largest)[0]
 		unconnected_indices = list(set(range(self.adjacency.shape[0])) - set(indices))
-		self.labels.remove_indices(unconnected_indices)
+		new_labels = self.remove_indices(unconnected_indices)
 		sub_matrix = _delete_from_csr(self.adjacency, unconnected_indices)
-		sub_graph = SparseGraph(sub_matrix, self.labels)
-		return sub_graph
+		subgraph = self.remove_indices(sub_matrix, new_labels)
+		return subgraph
 
 	def compute_degree(self) -> None:
 		"""
@@ -130,20 +137,22 @@ class SparseGraph:
 		nodes = self.adjacency[:, index].toarray()[0]
 		return np.nonzero(nodes)[0]
 
-	def remove_indices(self, indices : List[int]):
+	def remove_indices(self, indices : List[int]) -> 'SparseGraph':
 		new_adjacency = _delete_from_csr(self.adjacency, indices)
 		new_labels = self.labels.remove_indices(indices)
+		return SparseGraph(new_adjacency, new_labels)
+
 
 
 
 if __name__ == "__main__":
 	# US_ARTICLE_ID = 12
 	adj = load_npz(SPARSE_MATRIX_PATH)
-	node_list = load_node_list()
-	graph = SparseGraph(adj, node_list)
+	labels = load_wiki_labels()
+	graph = SparseGraph(adj, labels)
 	log.info("Imported graph")
 	graph.compute_degree()
-	log.info("Computed degrees.")
+	log.info("Computed degree")
+	us_index = graph.labels.find_index_from_article_id(US_ARTICLE_ID)
+	print(graph.in_degree[us_index])
 	
-
-	print()
