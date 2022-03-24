@@ -16,29 +16,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 
-# WAY TO SLOW
-# def breadth_first_search_level(graph : 'SparseGraph', node : int) -> Dict[int, int]:
-#     visited = {node}
-#     level = {node : 0}
-#     n = graph.adjacency.shape[0]
-
-#     q = queue.Queue()
-#     q.put(node)
-#     i = 0
-
-#     with tqdm(total = n) as pbar: 
-#         while not q.empty():
-#             v = q.get()
-#             pbar.update(1)
-#             neighbors = graph.incoming_neighbors(v)
-#             for w in neighbors:
-#                 if w not in visited:
-#                     q.put(w)
-#                     level[w] = level[v] + 1
-#                     visited.add(w)
-#     return level
-
-
 def breadth_first_search_level(graph : 'SparseGraph', start_node : int) -> Dict[int, int]:
     N = graph.adjacency.shape[0]
     predecessors = np.empty(N, dtype=int)
@@ -69,7 +46,6 @@ def breadth_first_search_level(graph : 'SparseGraph', start_node : int) -> Dict[
                 predecessors[cnode] = pnode
                 levels[cnode] = levels[pnode] + 1
                 i_nl_end += 1
-
         i_nl += 1
     pbar.close()
 
@@ -93,6 +69,7 @@ if __name__ == "__main__":
     log.info("finding subgraph")
     # subgraph = graph.get_largest_component()
     subgraph = graph
+    subgraph.remove_
     us_index = subgraph.labels.find_index(US_ARTICLE_ID)
     log.info("got subgraph")
 
