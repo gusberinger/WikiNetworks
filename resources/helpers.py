@@ -18,4 +18,6 @@ SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.npz")
 SPARSE_LABEL_PATH = DUMP_PATH.joinpath("labels.pickle")
 TESTING_MATRIX_PATH = DUMP_PATH.joinpath("testing_matrix.pickle")
 US_ARTICLE_ID = 3434750
+WAYBACK_ID = 23538754
+ISBN_ID = 14919
 
