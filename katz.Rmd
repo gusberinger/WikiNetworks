@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r, echo=FALSe}
+library(tidyverse)
+library(arrow)
+```
+
+```{r}
+df <- read_parquet("dump/katz-centrality.parquet") %>%
+  mutate(degree_ratio = in_degree / out_degree)
+```
+
+```{r}
+df %>%
+  # arrange(desc(score)) %>%
+  # head(100) %>%
+  filter(out_degree > 0) %>%
+  arrange(desc(degree_ratio)) %>%
+  head()
+```
+
+
+```{r}
+df %>%
+  ggplot(aes(in_degree, out_degree)) + geom_point()
+```
+
+
+
+
+
+```{r}
+df %>% 
+  filter(score > 0, score < 100) %>%
+  ggplot(aes(score)) + 
+  geom_histogram()
+    
+```
+
+
+
+
+```{r}
+dist <- read_parquet("dump/us_levels.parquet")
+head(dist)
+```
+```{r}
+dist %>%
+  ggplot(aes(level)) + 
+  geom_bar(stat = "count") +
+  scale_x_continuous(breaks = 1:max(dist$level)) +
+  scale_y_continuous(labels = scales::scientific) +
+  labs(title = "Distance from United States", x = "Distance", y = "Count", subtitle = "How many clicks away?")
+```
+```{r}
+from = 7
+dist %>%
+  filter(distance >= from) %>%
+  ggplot(aes(distance)) + 
+  geom_bar(stat = "count") +
+  scale_x_continuous(breaks = from:max(dist$distance)) +
+  labs(title = "Distance from United States", x = "Distance", y = "Count", subtitle = "From 7 clicks away")
+```
+
