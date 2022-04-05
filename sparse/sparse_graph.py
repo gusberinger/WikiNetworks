@@ -30,10 +30,17 @@ def _delete_from_csr(mat: sparse.csr_matrix, indices: List[int]) -> sparse.csr_m
 class Labels:
 
     def __init__(self, new_df: pd.DataFrame) -> None:
-
+        """
+        Params
+        ---
+        new_df:
+            DataFrame with columns title and article_id.
+        """
         self._internal_df = new_df
         article_id_from_index_dict: Dict[int, int] = dict(zip(new_df.index, new_df["article_id"]))
-        index_from_article_id_dict: Dict[int, int] = {v: k for k, v in article_id_from_index_dict.items()}
+        index_from_article_id_dict: Dict[int, int] = {
+            v: k for k, v in article_id_from_index_dict.items()
+        }
         title_from_index_dict: Dict[int, int] = dict(zip(new_df.index, new_df["title"]))
         title_from_article_id: Dict[int, int] = dict(zip(new_df["article_id"], new_df["title"]))
 
@@ -57,7 +64,8 @@ class SparseGraph:
         self._in_degree = None
         self._out_degree = None
 
-    def get_largest_component(self, directed: bool = True, connection: str = "strong") -> SparseGraph:
+    def get_largest_component(self, directed: bool = True,
+                              connection: str = "strong") -> SparseGraph:
         """
         Parameters
         ---
@@ -101,13 +109,17 @@ class SparseGraph:
 
     def in_degree(self, index: int) -> int:
         if self._in_degree is None:
-            raise ValueError("Degrees not computed. Must call self.compute_degree on instance first.")
+            raise ValueError(
+                "Degrees not computed. Must call self.compute_degree on instance first."
+            )
         else:
             return self._in_degree[index]
 
     def out_degree(self, index: int) -> int:
         if self._out_degree is None:
-            raise ValueError("Degrees not computed. Must call self.compute_degree on instance first.")
+            raise ValueError(
+                "Degrees not computed. Must call self.compute_degree on instance first."
+            )
         else:
             return self._out_degree[index]
 
