@@ -28,6 +28,7 @@ def random_sparse_graph(nodes, p):
     graph = SparseGraph(adj, label_df)
     return graph
 
+
 if __name__ == "__main__":
     graph = random_sparse_graph(100, .01)
     print(graph)
