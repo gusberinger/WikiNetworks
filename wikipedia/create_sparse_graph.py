@@ -13,7 +13,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 if __name__ == "__main__":
-    with open(NODES_LIST_PATH, "rb") as f:
+    with open(SPARSE_LABEL_PATH, "rb") as f:
         size = len(pickle.load(f))
 
     logging.info(f"Creating empty graph of size {size:,}.")
