@@ -1,34 +1,8 @@
 from __future__ import annotations
-import logging
-import pickle
-import sqlite3
 import pandas as pd
 import numpy as np
 from typing import Dict, List
 from scipy import sparse
-from helpers import SPARSE_LABEL_PATH, DATABASE_PATH, US_ARTICLE_ID, SPARSE_MATRIX_PATH
-log = logging.getLogger(__name__)
-
-
-class SparseLabels:
-
-    def __init__(self, new_df: pd.DataFrame) -> None:
-
-        self._internal_df = new_df
-        article_id_from_index_dict: Dict[int, int] = dict(zip(new_df.index, new_df["article_id"]))
-        index_from_article_id_dict: Dict[int, int] = {v: k for k, v in article_id_from_index_dict.items()}
-        title_from_index_dict: Dict[int, int] = dict(zip(new_df.index, new_df["title"]))
-        title_from_article_id: Dict[int, int] = dict(zip(new_df["article_id"], new_df["title"]))
-
-        self.find_index_from_article_id = index_from_article_id_dict.get
-        self.find_article_id_from_index = article_id_from_index_dict.get
-        self.find_title_from_index = title_from_index_dict.get
-        self.find_title_from_article_id = title_from_article_id.get
-
-    def remove_indices(self, indices) -> SparseLabels:
-        new_df = self._internal_df.drop(indices, axis=0)
-        new_df = new_df.reset_index(drop=True)
-        return SparseLabels(new_df)
 
 
 def _delete_from_csr(mat: sparse.csr_matrix, indices: List[int]) -> sparse.csr_matrix:
@@ -53,10 +27,31 @@ def _delete_from_csr(mat: sparse.csr_matrix, indices: List[int]) -> sparse.csr_m
     return mat[mask][:, mask]
 
 
+class Labels:
+
+    def __init__(self, new_df: pd.DataFrame) -> None:
+
+        self._internal_df = new_df
+        article_id_from_index_dict: Dict[int, int] = dict(zip(new_df.index, new_df["article_id"]))
+        index_from_article_id_dict: Dict[int, int] = {v: k for k, v in article_id_from_index_dict.items()}
+        title_from_index_dict: Dict[int, int] = dict(zip(new_df.index, new_df["title"]))
+        title_from_article_id: Dict[int, int] = dict(zip(new_df["article_id"], new_df["title"]))
+
+        self.find_index_from_article_id = index_from_article_id_dict.get
+        self.find_article_id_from_index = article_id_from_index_dict.get
+        self.find_title_from_index = title_from_index_dict.get
+        self.find_title_from_article_id = title_from_article_id.get
+
+    def remove_indices(self, indices) -> Labels:
+        new_df = self._internal_df.drop(indices, axis=0)
+        new_df = new_df.reset_index(drop=True)
+        return Labels(new_df)
+
+
 class SparseGraph:
 
     def __init__(self, adjacency: sparse.csr_matrix,
-                 labels: SparseLabels) -> None:
+                 labels: Labels) -> None:
         self.adjacency = adjacency
         self.labels = labels
         self._in_degree = None
@@ -128,21 +123,3 @@ class SparseGraph:
         new_adjacency = _delete_from_csr(self.adjacency, indices)
         new_labels = self.labels.remove_indices(indices)
         return SparseGraph(new_adjacency, new_labels)
-
-
-
-if __name__ == "__main__":
-    graph = load_wiki_graph()
-    graph.compute_degree()
-    N_0 = graph.adjacency.shape[0]
-    us_index = graph.labels.find_index_from_article_id(US_ARTICLE_ID)
-    print(graph.in_degree(us_index))
-    print(graph.labels._internal_df.head(100))
-    print("----")
-
-    subgraph = graph.get_largest_component()
-    subgraph.compute_degree()
-    N_1 = subgraph.adjacency.shape[0]
-    print(subgraph.labels._internal_df.head(100))
-    us_index = subgraph.labels.find_index_from_article_id(US_ARTICLE_ID)
-    print(subgraph.in_degree(us_index))
