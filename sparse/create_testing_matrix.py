@@ -2,7 +2,9 @@ import itertools
 import random
 import string
 import networkx as nx
-from helpers import *
+import pandas as pd
+from .sparse_graph import SparseGraph
+
 
 def titles():
     """Generator: 'A', 'B', 'C', ..., 'AA', 'AB',... """
@@ -16,12 +18,18 @@ def random_integers():
         yield random.randint(0, 9000000)
 
 
-
-def create_sparse_graph():
-    G = nx.binomial_graph(200, 5 / 200, directed = True)
+def random_sparse_graph(nodes, p):
+    G = nx.binomial_graph(nodes, p, directed=True)
     adj = nx.adjacency_matrix(G).to_scipy_sparse_matrix()
     titles = titles()
     article_ids = random_integers()
+    rows = itertools.islice(zip(titles, article_ids), nodes)
+    label_df = pd.DataFrame(rows)
+    graph = SparseGraph(adj, label_df)
+    return graph
 
+if __name__ == "__main__":
+    graph = random_sparse_graph(100, .01)
+    print(graph)
 
 
