@@ -1,16 +1,12 @@
 from __future__ import annotations
-import pickle
 import pandas as pd
 import numpy as np
 from typing import Dict
 from tqdm import tqdm
-import resources
 
 
-# log = logging.getLogger(__name__)
-
-
-def breadth_first_search_level(graph : resources.SparseGraph, start_node : int) -> Dict[int, int]:
+def breadth_first_search_level(graph,
+                               start_node : int) -> Dict[int, int]:
     N = graph.adjacency.shape[0]
     predecessors = np.empty(N, dtype=int)
     node_list =  np.empty(N, dtype=int)
@@ -26,7 +22,7 @@ def breadth_first_search_level(graph : resources.SparseGraph, start_node : int) 
     levels[start_node] = 0
     i_nl = 0
     i_nl_end = 1
-    
+
     pbar = tqdm(total=N)
     while i_nl < i_nl_end:
         pnode = node_list[i_nl]
@@ -43,18 +39,3 @@ def breadth_first_search_level(graph : resources.SparseGraph, start_node : int) 
         i_nl += 1
     pbar.close()
     return levels
-
-
-if __name__ == "__main__":
-    
-
-    
-    graph = resources.load_wiki_graph()    
-    
-    
-    exit()
-
-
-    # df = pd.DataFrame(levels.items(), columns = ["node", "level"], dtype=np.uint32)
-    # print(df.head())
-    # df.to_parquet(DUMP_PATH.joinpath("us_levels.parquet"))
