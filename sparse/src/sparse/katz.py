@@ -1,5 +1,5 @@
 import pandas as pd
-from random_graph import random_sparse_graph
+from .random_graph import random_sparse_graph
 from sknetwork.ranking import Katz
 
 
@@ -11,9 +11,3 @@ def katz_centrality(graph):
              score) for i, score in enumerate(scores)]
     df = pd.DataFrame(rows, columns=["title", "article_id", "score"])
     return df
-
-
-if __name__ == "__main__":
-    graph = random_sparse_graph(100, .1)
-    report = katz_centrality(graph)
-    print(report)

@@ -3,7 +3,7 @@ import random
 import string
 import networkx as nx
 import pandas as pd
-from sparse_graph import SparseGraph
+from .sparse_graph import SparseGraph
 
 
 def titles():
