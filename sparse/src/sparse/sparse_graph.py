@@ -59,6 +59,7 @@ class SparseGraph:
 
     def __init__(self, adjacency: sparse.csr_matrix,
                  label_df: pd.DataFrame) -> None:
+        self.size = adjacency.shape[0]
         self.adjacency = adjacency
         self.labels = Labels(label_df)
         self._in_degree = None
