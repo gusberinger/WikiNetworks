@@ -29,8 +29,9 @@ def from_networkx(G):
     return graph
 
 
-def random_sparse_graph(nodes, p, seed):
-    random.seed(seed)
+def random_sparse_graph(nodes, p, seed=None):
+    if seed is not None:
+        random.seed(seed)
     G = nx.binomial_graph(nodes, p, directed=True)
     return from_networkx(G)
 
