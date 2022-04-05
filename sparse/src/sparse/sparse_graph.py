@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List
 from scipy import sparse
-
+import networkx as nx
 
 def _delete_from_csr(mat: sparse.csr_matrix, indices: List[int]) -> sparse.csr_matrix:
     """
@@ -135,3 +135,6 @@ class SparseGraph:
         new_adjacency = _delete_from_csr(self.adjacency, indices)
         new_labels = self.labels.remove_indices(indices)
         return SparseGraph(new_adjacency, new_labels)
+
+    def to_networkx(self):
+        return nx.from_scipy_sparse_matrix(self.adjacency)
