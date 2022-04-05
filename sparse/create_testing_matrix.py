@@ -1,26 +1,27 @@
 import itertools
-from re import sub
+import random
 import string
-import scipy.sparse as sp
 import networkx as nx
-from create_connected_subgraph import SparseGraph
 from helpers import *
 
-def _column_name_generator():
+def titles():
+    """Generator: 'A', 'B', 'C', ..., 'AA', 'AB',... """
     for i in itertools.count(1):
         for p in itertools.product(string.ascii_uppercase, repeat=i):
             yield ''.join(p)
 
 
-if __name__ == "__main__":
+def random_integers():
+    while True:
+        yield random.randint(0, 9000000)
+
+
+
+def create_sparse_graph():
     G = nx.binomial_graph(200, 5 / 200, directed = True)
     adj = nx.adjacency_matrix(G).to_scipy_sparse_matrix()
-    gen_labels = _column_name_generator()
-    labels = NodeList([next(gen_labels) for _ in range(adj.shape[0])])
-    mainGraph = SparseGraph(adj, labels)
-    sub_adj, sub_labels = mainGraph.get_largest_component()
+    titles = titles()
+    article_ids = random_integers()
 
 
-    with open(TESTING_MATRIX_PATH, "wb") as f:
-        pickle.dump((sub_adj, sub_labels), f)
 
