@@ -20,11 +20,11 @@ def random_integers():
 
 def random_sparse_graph(nodes, p):
     G = nx.binomial_graph(nodes, p, directed=True)
-    adj = nx.adjacency_matrix(G)
+    adj = nx.adjacency_matrix(G).astype(bool)
     article_titles = titles()
     article_ids = random_integers()
     rows = itertools.islice(zip(article_titles, article_ids), nodes)
-    label_df = pd.DataFrame(rows)
+    label_df = pd.DataFrame(rows, columns=["title", "article_id"])
     graph = SparseGraph(adj, label_df)
     return graph
 

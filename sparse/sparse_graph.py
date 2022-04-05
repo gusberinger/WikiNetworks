@@ -49,18 +49,18 @@ class Labels:
         self.find_title_from_index = title_from_index_dict.get
         self.find_title_from_article_id = title_from_article_id.get
 
-    def remove_indices(self, indices) -> Labels:
+    def remove_indices(self, indices) -> pd.DataFrame:
         new_df = self._internal_df.drop(indices, axis=0)
         new_df = new_df.reset_index(drop=True)
-        return Labels(new_df)
+        return new_df
 
 
 class SparseGraph:
 
     def __init__(self, adjacency: sparse.csr_matrix,
-                 labels: Labels) -> None:
+                 label_df: pd.DataFrame) -> None:
         self.adjacency = adjacency
-        self.labels = labels
+        self.labels = Labels(label_df)
         self._in_degree = None
         self._out_degree = None
 
