@@ -5,11 +5,11 @@ from typing import Dict
 from tqdm import tqdm
 
 
-def distance_from(graph, start_node : int) -> Dict[int, int]:
+def distance_from(graph, start_node: int) -> np.ndarray:
     """Breadth first search."""
     N = graph.adjacency.shape[0]
     predecessors = np.empty(N, dtype=int)
-    node_list =  np.empty(N, dtype=int)
+    node_list = np.empty(N, dtype=int)
     levels = np.empty(N, dtype=int)
     indptr = graph.adjacency.indptr
     indices = graph.adjacency.indices
