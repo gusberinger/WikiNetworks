@@ -16,7 +16,7 @@ def katz_centrality(graph, alpha: float = 0.1, beta: float = 1,
     last = e.copy()
     for k in range(max_iter):
         current = alpha * A * last + beta * e
-        error = sum((current[i] - last(i) for i in range(n)))
+        error = sum((current[i] - last[i] for i in range(n)))
         if error < n * tol:
             logging.info(f"Converged in {k} iterations")
             if normalized:
