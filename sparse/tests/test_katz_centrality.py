@@ -9,8 +9,8 @@ from scipy.stats import pearsonr
 class TestKatzCentrality(unittest.TestCase):
 
     def test_example(self):
-        adj = np.matrix([[0, 1, 1, 1, 0], [1, 0, 1, 1, 1], [1, 1, 0, 1, 1], [1, 1, 1, 0, 0], [0, 1, 1, 0, 0]])
-        nxG = nx.from_numpy_matrix(adj)
+        adj = np.array([[0, 1, 1, 1, 0], [1, 0, 1, 1, 1], [1, 1, 0, 1, 1], [1, 1, 1, 0, 0], [0, 1, 1, 0, 0]])
+        nxG = nx.from_numpy_array(adj)
         G = random_graph.from_networkx(nxG)
         sparse_scores = katz_centrality(G, alpha=0.25, beta=0.2, normalized=False)
         real_scores = [1.1428571428571426, 1.3142857142857138, 1.3142857142857138, 1.1428571428571426, 0.857142857142857]
