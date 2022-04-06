@@ -13,7 +13,7 @@ def katz_centrality(
     n = graph.size
     e = np.ones((n, 1))
     last = e.copy()
-    for k in range(max_iter):
+    for _ in range(max_iter):
         current = alpha * A.dot(last) + beta * e
         error = sum((abs(current[i] - last[i]) for i in range(n)))
         if error < n * tol:
