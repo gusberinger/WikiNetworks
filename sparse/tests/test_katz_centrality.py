@@ -6,6 +6,7 @@ from sparse import random_graph
 from sparse.katz import katz_centrality
 from scipy.stats import pearsonr
 
+
 class TestKatzCentrality(unittest.TestCase):
 
     def test_example(self):
@@ -26,5 +27,11 @@ class TestKatzCentrality(unittest.TestCase):
         cor = pearsonr(sparse_scores, nx_scores)[0]
         self.assertGreater(cor, .9999)
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_random_graph(self):
+        graph = random_graph.random_sparse_graph(1000, .001, 10)
+        nxG = graph.to_networkx()
+        nx_scores_dict = nx.katz_centrality(nxG, alpha=0.1, beta=1)
+        nx_scores = [nx_scores_dict[k] for k in sorted(nx_scores_dict)]
+        sparse_scores = list(katz_centrality(graph))
+        cor = pearsonr(sparse_scores, nx_scores)
+        self.assertGreater(cor, .9999)
