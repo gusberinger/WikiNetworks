@@ -1,11 +1,6 @@
-from random import random
-from turtle import distance
 from sparse import random_graph, random_sparse_graph, distance_from
 import numpy as np
 import unittest
-import networkx as nx
-from collections import OrderedDict
-import matplotlib.pyplot as plt
 
 class TestCloseness(unittest.TestCase):
 

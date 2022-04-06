@@ -4,7 +4,6 @@ import string
 import networkx as nx
 import pandas as pd
 from .sparse_graph import SparseGraph
-import matplotlib.pyplot as plt
 
 def titles():
     """Generator: 'A', 'B', 'C', ..., 'AA', 'AB',... """
