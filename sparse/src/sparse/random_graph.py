@@ -5,6 +5,7 @@ import networkx as nx
 import pandas as pd
 from .sparse_graph import SparseGraph
 
+
 def titles():
     """Generator: 'A', 'B', 'C', ..., 'AA', 'AB',... """
     for i in itertools.count(1):
@@ -38,7 +39,7 @@ def random_sparse_graph(nodes, p, seed=None):
 
 def small_sample_graph():
     """Simple strongly connected graph."""
-    items = [(0,2), (1,0), (2,3), (2, 4), (3, 1), (4,1)]
+    items = [(0, 2), (1, 0), (2, 3), (2, 4), (3, 1), (4, 1)]
     graph = nx.DiGraph(items)
     return from_networkx(graph)
 
