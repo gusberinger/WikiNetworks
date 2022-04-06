@@ -17,5 +17,14 @@ class TestKatzCentrality(unittest.TestCase):
         cor = pearsonr(sparse_scores, real_scores)[0]
         self.assertGreater(cor, .99)
 
+    def test_kite(self):
+        nx_graph = nx.krackhardt_kite_graph()
+        graph = random_graph.from_networkx(nx_graph)
+
+        sparse_scores = list(katz_centrality(graph, alpha=.1, beta=1))
+        nx_scores = list(nx.katz_centrality(nx_graph).values())
+        cor = pearsonr(sparse_scores, nx_scores)[0]
+        self.assertGreater(cor, .9999)
+
 if __name__ == "__main__":
     unittest.main()
