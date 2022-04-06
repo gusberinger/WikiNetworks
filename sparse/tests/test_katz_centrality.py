@@ -33,7 +33,7 @@ class TestKatzCentrality(unittest.TestCase):
         nx_scores_dict = nx.katz_centrality(nxG, alpha=0.1, beta=1)
         nx_scores = [nx_scores_dict[k] for k in sorted(nx_scores_dict)]
         sparse_scores = list(katz_centrality(graph))
-        cor = pearsonr(sparse_scores, nx_scores)
+        cor = pearsonr(sparse_scores, nx_scores)[0]
         self.assertGreater(cor, .9999)
 
 
