@@ -4,7 +4,7 @@ import string
 import networkx as nx
 import pandas as pd
 from .sparse_graph import SparseGraph
-
+import matplotlib.pyplot as plt
 
 def titles():
     """Generator: 'A', 'B', 'C', ..., 'AA', 'AB',... """
@@ -20,7 +20,8 @@ def random_integers():
 
 def from_networkx(G):
     n = len(G)
-    adj = nx.to_scipy_sparse_array(G).astype(bool)
+    adj = nx.to_scipy_sparse_array(G, format='csr', nodelist=range(n))
+    # print(adj.toarray())
     article_titles = titles()
     article_ids = random_integers()
     rows = itertools.islice(zip(article_titles, article_ids), n)
@@ -34,6 +35,13 @@ def random_sparse_graph(nodes, p, seed=None):
         random.seed(seed)
     G = nx.binomial_graph(nodes, p, directed=True)
     return from_networkx(G)
+
+
+def small_sample_graph():
+    """Simple strongly connected graph."""
+    items = [(0,2), (1,0), (2,3), (2, 4), (3, 1), (4,1)]
+    graph = nx.DiGraph(items)
+    return from_networkx(graph)
 
 
 if __name__ == "__main__":
