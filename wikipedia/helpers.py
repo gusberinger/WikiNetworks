@@ -11,7 +11,7 @@ logging.basicConfig(
 
 
 WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php'
-ROOT_PATH = Path(__file__).parent.parent
+ROOT_PATH = Path(__file__).parent
 DUMP_PATH = ROOT_PATH.joinpath("dump")
 DATABASE_PATH = DUMP_PATH.joinpath("sdow.sqlite")
 SPARSE_MATRIX_PATH = DUMP_PATH.joinpath("sparse_mat.npz")
