@@ -14,7 +14,7 @@ class TestKatzCentrality(unittest.TestCase):
         nxG = nx.from_numpy_array(adj)
         G = random_graph.from_networkx(nxG)
         sparse_scores = katz_centrality(G, alpha=0.25, beta=0.2, normalized=False)
-        real_scores = [1.1428571428571426, 1.3142857142857138, 1.3142857142857138, 1.1428571428571426, 0.857142857142857]
+        real_scores = [1.142857, 1.314285, 1.314285, 1.142857, 0.85714]
         cor = pearsonr(sparse_scores, real_scores)[0]
         self.assertGreater(cor, .99)
 
@@ -35,3 +35,7 @@ class TestKatzCentrality(unittest.TestCase):
         sparse_scores = list(katz_centrality(graph))
         cor = pearsonr(sparse_scores, nx_scores)
         self.assertGreater(cor, .9999)
+
+
+if __name__ == "__main__":
+    unittest.main()
