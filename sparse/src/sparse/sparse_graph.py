@@ -138,4 +138,5 @@ class SparseGraph:
         return SparseGraph(new_adjacency, new_labels)
 
     def to_networkx(self):
-        return nx.from_scipy_sparse_matrix(self.adjacency)
+        return nx.from_scipy_sparse_matrix(self.adjacency,
+                                           create_using=nx.DiGraph)
