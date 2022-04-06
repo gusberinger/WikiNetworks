@@ -1,9 +1,14 @@
 import numpy as np
 
 
-def katz_centrality(graph, alpha: float = 0.1, beta: float = 1,
-                    max_iter: int = 10000, tol: float = 1.0e-6,
-                    normalized: bool = True):
+def katz_centrality(
+    graph,
+    alpha: float = 0.1,
+    beta: float = 1,
+    max_iter: int = 10000,
+    tol: float = 1.0e-6,
+    normalized: bool = True
+):
     A = graph.adjacency.transpose()
     n = graph.size
     e = np.ones((n, 1))
