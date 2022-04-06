@@ -5,8 +5,8 @@ from typing import Dict
 from tqdm import tqdm
 
 
-def breadth_first_search_level(graph,
-                               start_node : int) -> Dict[int, int]:
+def distance_from(graph, start_node : int) -> Dict[int, int]:
+    """Breadth first search."""
     N = graph.adjacency.shape[0]
     predecessors = np.empty(N, dtype=int)
     node_list =  np.empty(N, dtype=int)
