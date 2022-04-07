@@ -2,6 +2,7 @@ from .breadth_first_search import distance_from
 import random
 import numpy as np
 
+
 def closeness_centrality(k, graph):
     n = graph.size
     total = np.zeros(n)
