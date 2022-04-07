@@ -5,6 +5,7 @@ from typing import Dict, List
 from scipy import sparse
 import networkx as nx
 
+
 def _delete_from_csr(mat: sparse.csr_matrix, indices: List[int]) -> sparse.csr_matrix:
     """
     Parameters
