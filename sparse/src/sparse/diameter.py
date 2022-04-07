@@ -8,7 +8,7 @@ def estimate_diameter(graph, k):
     eccentricity = {}
     end = {}
     n = graph.size
-    d_est = float("inf")
+    diameter_estimate = float("inf")
     for i in range(1, k+1):
         if i == 1:
             v = random.randint(0, n-1)
@@ -23,7 +23,6 @@ def estimate_diameter(graph, k):
         furthest = np.argmax(distances)
         end[v] = furthest
         eccentricity[v] = max(distance_from(graph, v))
-        d_est = min(d_est, eccentricity[v])
-        pass
+        diameter_estimate = max(diameter_estimate, eccentricity[v])
 
-    print(d_est)
+    return diameter_estimate
