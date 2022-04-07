@@ -5,6 +5,7 @@ import sqlite3
 import pandas as pd
 import scipy.sparse
 
+
 def load_wiki_labels(from_scratch=False) -> pd.DataFrame:
     # load pickled to avoid generating every time.
     if not from_scratch and SPARSE_LABEL_PATH.is_file():
@@ -24,15 +25,11 @@ def load_wiki_labels(from_scratch=False) -> pd.DataFrame:
 
 
 def load_wikipedia(from_scratch=False) -> SparseGraph:
-    labels = load_wiki_labels(from_scratch)
+    labels = load_wiki_labels()
+    print("loaded labels")
     with open(SPARSE_MATRIX_PATH, "rb") as f:
         matrix = scipy.sparse.load_npz(f)
+    print("loaded adjacency")
     graph = SparseGraph(matrix, labels)
+    print("created sparse graph")
     return graph
-
-
-if __name__ == "__main__":
-    G = load_wikipedia()
-    import scipy.sparse.csgraph as cs
-    cs.dijkstra()
-    print(G)
