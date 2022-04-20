@@ -1,0 +1,208 @@
+\documentclass{article}
+\usepackage[margin=1.5in, includeheadfoot]{geometry}
+\usepackage{fancyhdr}
+\usepackage[fleqn]{amsmath}
+\usepackage{amssymb, amsthm}
+\usepackage{microtype}
+\usepackage[shortlabels]{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    % backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    % numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\author{Gus Beringer}
+\title{Capstone Project}
+
+\date{\today}
+\newtheorem{theorem}{Theorem}
+\def\D{\mathbb{D}}
+\def\I{\mathbb{I}}
+\def\N{\mathbb{N}}
+\def\R{\mathbb{R}}
+\def\T{\mathbb{T}}
+\def\U{\mathbb{U}}
+\def\Z{\mathbb{Z}}
+\def\vep{{\varepsilon}}
+
+
+
+\begin{document}
+\maketitle
+% \tableofcontents
+
+\section{Introduction}
+
+\section{Sparse Adjacency Matrices}
+
+\section{Degree Distribution}
+
+
+
+\section{Degree Centrality}
+
+Degree centrality is one of the simplest forms of centrality. The indegree of a vertex in a directed graph is the number of edges that point to the vertex. The outdegree of a vertex is the number of edges originating from that vertex.
+To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
+
+
+There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. The article for ISBN has indegree TODO, but only TODO outdegree. In fact, TODO percent of articles point to the ISBN page. This is because any article with a book in the references will contain a link to the ISBN article. For similar reasons the pages have all have excessive indegree compared to their outdegree.
+
+\section{Closeness Centrality}
+
+
+The idea of closeness centrality is how close any node is to another node in the graph.
+
+To find the exact closeness centrality for all agents in the network, we must solve the All Pairs Shortest Path problem. However, for large networks this is extremely computationally intensive. 
+Eppstein provides a near-linear time approximation for centrality when the diameter is $O(\log n)$. That is, when the graph is a small world network. Since the Wikipedia hyperlink graph is a small world network, this algorithm is a good fit.
+
+We are given a directed graph $G(V,E)$ with $n$ nodes and $m$ edges.
+A directed graph is strongly connected if there is path between any two vertices. We assume that $G$ is strongly connected.
+The distance $d(u, v)$ between vertices $u$ and $v$ is the shortest possible path between the vertices. Since $G$ is strongly connected, $d(u, v)$ always exists.
+
+
+% Given a graph $G(V, E)$, the distance $d(u, v)$ between  vertices 
+Eppstein defines closeness centrality $c_v$ of a vertex $v$ as,
+\begin{equation*}
+    c_v = \frac{n-1}{\sum_{u \in V}d(u,v)}
+\end{equation*} 
+
+Then Eppstein presents the following algorithm RAND for computing closeness centrality,
+\begin{enumerate}[1.]
+    \item 
+    Let k be the number of iterations needed to obtain the desired error bound.
+
+    \item
+    In iteration $i$, pick vertex $v_i$ uniformly at random from $G$ and solve the SSSP problem with $v_i$ as the source.
+
+    \item 
+    Let
+    \begin{equation*}
+        \hat{c}_ua = \frac{1}{\sum^k_{i=1} \frac{n d(v_i, u)}{k(n-1)}}
+    \end{equation*}
+    be the centrality estimator for vertex $u$.
+
+    Since the graph is unweighted, we use a breadth first search to solve the SSSP problem.
+
+    
+\end{enumerate}
+
+\subsection*{Results}
+TODO
+
+
+
+
+\section{Katz Centrality}
+
+The Katz Centrality measure was introduced in 1953 by Leo Katz. 
+In this measure of centrality, the weighted count of incoming paths to each node determines it's importance in the network. The attenuation factor $\alpha$ changes how quickly the weights decrease the importance of walks.
+
+We define Katz Centrality as,
+\begin{equation*}
+    C_{\textrm{Katz}}(i) = \sum_{j} (I_{ij} + \alpha A_{ij} + \alpha^2 A_{ij}^2 + \alpha^3 A_{ij}^3 + \dots).
+\end{equation*}
+
+Then,
+\begin{align*}
+    C_{\textrm{Katz}} &= (I + \alpha A + \alpha^2 A^2 + \alpha^3 A^3 + \dots) \begin{pmatrix}
+        1 & \dots & 1
+    \end{pmatrix}^T \\
+    &= \sum^\infty_{n=1} (\alpha^n A^n)\begin{pmatrix}
+    1 & 1 & \dots & 1
+\end{pmatrix}^T \\ 
+&= (I - \alpha A^T)^{-1} \begin{pmatrix}
+    1 & 1 & \dots & 1
+\end{pmatrix}^T 
+\end{align*}
+% https://www.youtube.com/watch?v=DfV-pjRTlLg
+
+However, with extremely large matrices the inverse is difficult and imprecise to compute directly.
+Therefore, we use power iteration to compute the measure instead.
+
+\section*{Results}
+
+\section{Graph Radius \& Diameter}
+
+The eccentricity of a vertex $v_i$ is the greatest distance between any other vertex $v$. That is, $e(v_i) = \max d(v_i, v)_{v \in V}$.
+
+The radius of a graph is the minimum eccentricity of the entire graph, while the diameter of a graph is the maximum eccentricity.
+
+Mathematically,
+\begin{align*}
+    r = \min e(v)_{v \in V} \\
+    d = \max e(v)_{v \in V}
+\end{align*}
+where $r$ is the radius and $d$ is the diameter.
+
+
+A naive method of estimating the radius and the diameter is running multiple breadth first searches from random nodes and returning the minimum and maximum of the result. Boitmanis et. al presents a better approximation algorithm.
+
+% https://sci-hub.se/https://dl.acm.org/doi/10.1007/11764298_9
+Instead of starting the breadth first search from a uniformly random node, we start the breadth first search from the node furthest from the set of already processed nodes.
+
+Using this search we can identify a tunnel of articles, from "Billboard Top Rock'n'Roll Hits: 1972" to "Billboard Top Hits: 1995". Where only a single path with 23 articles exists between the two articles.
+
+
+
+\section*{Conclusions}
+
+
+\section{Further Research}
+
+
+\section{Appendix}
+
+
+\subsection*{Katz Centrality}
+\begin{lstlisting}[language=Python]
+def katz_centrality(
+graph,
+alpha: float = 0.1,
+beta: float = 1,
+max_iter: int = 10000,
+tol: float = 1.0e-6,
+normalized: bool = True
+):
+    A = graph.adjacency.transpose()
+    n = graph.size
+    e = np.ones((n, 1))
+    last = e.copy()
+    for _ in range(max_iter):
+        current = alpha * A.dot(last) + beta * e
+        error = sum((abs(current[i] - last[i]) for i in range(n)))
+        if error < n * tol:
+            centrality = current.flatten().tolist()
+            if normalized:
+                norm = np.sign(sum(centrality)) * np.linalg.norm(centrality)
+                return map(float, centrality / norm)
+            else:
+                return centrality
+        last = current.copy()
+
+    raise ConvergenceError(f"Failed to converge in {max_iter} iterations.")
+\end{lstlisting}
+
+
+
+\end{document}
