@@ -7,6 +7,7 @@
 \usepackage[shortlabels]{enumitem}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{fullpage}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -32,6 +33,8 @@
 }
 \lstset{style=mystyle}
 
+\linespread{1.2}
+
 \author{Gus Beringer}
 \title{Capstone Project}
 
@@ -54,11 +57,25 @@
 
 \section{Introduction}
 
+Every Wikipedia article contains links to other articles. If the article references a concept that is also another Wikipedia article, the text can link to that article.
+The Wikipedia hyperlink graph is the graph with every article as a vertex. The edges between the vertices are the links between the articles.
+
+It is observable that the Wikipedia hyperlink graph is a small world network.
+A small-world network is a graph where each vertex is connected to few vertices, but can reach all other vertices within a few steps. 
+
 \section{Sparse Adjacency Matrices}
 
+The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 5,000,000%TODO
+vertices. Therefore, a dense representation of the adjacency matrix would have $5 * 10^12$ vertices. This is clearly not scalable.
+
+Instead, we employ sparse matrices to efficiently store the adjacency matrix of the graph in memory. Instead of storing the whole Adjacency matrix, the sparse matrix stores the location of non-zero elements.
+
+The scipy implmentation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. 
+
+
+
+
 \section{Degree Distribution}
-
-
 
 \section{Degree Centrality}
 
@@ -131,7 +148,7 @@ Then,
     &= \sum^\infty_{n=1} (\alpha^n A^n)\begin{pmatrix}
     1 & 1 & \dots & 1
 \end{pmatrix}^T \\ 
-&= (I - \alpha A^T)^{-1} \begin{pmatrix}
+&= (I - \alpha A)^{-1} \begin{pmatrix}
     1 & 1 & \dots & 1
 \end{pmatrix}^T 
 \end{align*}
@@ -148,6 +165,7 @@ The eccentricity of a vertex $v_i$ is the greatest distance between any other ve
 
 The radius of a graph is the minimum eccentricity of the entire graph, while the diameter of a graph is the maximum eccentricity.
 
+
 Mathematically,
 \begin{align*}
     r = \min e(v)_{v \in V} \\
@@ -155,11 +173,13 @@ Mathematically,
 \end{align*}
 where $r$ is the radius and $d$ is the diameter.
 
+In the Wikipedia hyperlink graph the diameter can be conceptualized as given any article, how what is the maximum number of clicks to any other article in a shortest path. The radius can similarly be conceptualized as the minimum number of clicks to any other articles in a shortest path.
+
 
 A naive method of estimating the radius and the diameter is running multiple breadth first searches from random nodes and returning the minimum and maximum of the result. Boitmanis et. al presents a better approximation algorithm.
 
 % https://sci-hub.se/https://dl.acm.org/doi/10.1007/11764298_9
-Instead of starting the breadth first search from a uniformly random node, we start the breadth first search from the node furthest from the set of already processed nodes.
+Instead of starting the breadth first search from a uniformly random node, we start the breadth first search from the node furthest from the set of already processed nodes. This can be done in $O(n)$ time by keeping track of the results each breadth first search.
 
 Using this search we can identify a tunnel of articles, from "Billboard Top Rock'n'Roll Hits: 1972" to "Billboard Top Hits: 1995". Where only a single path with 23 articles exists between the two articles.
 
@@ -170,11 +190,15 @@ Using this search we can identify a tunnel of articles, from "Billboard Top Rock
 
 \section{Further Research}
 
+One property of the hyperlink graph that isn't explored here is the order of the links. It is observable that repeatedly clicking the first link in most articles will eventually reach the Philosophy page. This is likely due to the definitional nature of the first paragraph in the article, that the first link in the article further abstracts the page.
+
+
 
 \section{Appendix}
 
 
 \subsection*{Katz Centrality}
+\linespread{1}
 \begin{lstlisting}[language=Python]
 def katz_centrality(
 graph,
