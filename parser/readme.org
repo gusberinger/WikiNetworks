@@ -2,4 +2,4 @@
 
 The goal of the parser module is to manually construct the links from article to article instead of using the ``pagelinks`` data dump. The problem with ``pagelinks`` is that unwanted links, such as links from the references section are impossible to filter.
 
-Currently this module is on indefinite hiatus.
+Currently this module is on hiatus.
