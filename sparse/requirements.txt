@@ -14,3 +14,5 @@ scikit-network==0.25.0
 scipy==1.8.0
 six==1.16.0
 tqdm==4.64.0
+fastparquet==0.8.1
+pyarrow==7.0.0
