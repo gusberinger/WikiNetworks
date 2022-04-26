@@ -8,6 +8,8 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{fullpage}
+\usepackage{booktabs}
+\usepackage[]{float}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -135,6 +137,42 @@ A limitation of the algorithm is that each breadth-first search takes 5 minutes 
 
 
 
+\begin{figure}[H]
+    \caption[fig]{Closeness Centrality}
+    \centering
+    \begin{tabular}{rlr}
+        \toprule
+        Article ID & Title & Centrality \\
+        \midrule
+        14919 & International\_Standard\_Book\_Number & 0.5357142\\
+        32927 & World\_War\_II & 0.5357142\\
+        3434750 & United\_States & 0.5172413\\
+        5843419 & France & 0.5172413\\
+        23538754 & Wayback\_Machine & 0.5172413\\
+        \addlinespace
+        11867 & Germany & 0.4999999\\
+        14532 & Italy & 0.4999999\\
+        25391 & Russia & 0.4999999\\
+        48361 & Geographic\_coordinate\_system & 0.4999999\\
+        422994 & Digital\_object\_identifier & 0.4999999\\
+        \addlinespace
+        1057428 & Typographical\_error & 0.4999999\\
+        26748 & Switzerland & 0.4838709\\
+        31717 & United\_Kingdom & 0.4838709\\
+        883885 & OCLC & 0.4838709\\
+        5042916 & Canada & 0.4838709\\
+        \addlinespace
+    8569916 & English\_language & 0.4838709\\
+    17416221 & South\_Africa & 0.4838709\\
+    25175562 & Virtual\_International\_Authority\_File & 0.4838709\\
+    10568 & Association\_football & 0.4687499\\
+    15573 & Japan & 0.4687499\\
+    \bottomrule
+\end{tabular}
+\end{figure}
+
+
+A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
 
 \section{Katz Centrality}
