@@ -19,8 +19,7 @@ df %>%
   # arrange(desc(score)) %>%
   # head(100) %>%
   filter(out_degree > 0) %>%
-  arrange(desc(degree_ratio)) %>%
-  head()
+  arrange(desc(degree_ratio))
 ```
 
 
