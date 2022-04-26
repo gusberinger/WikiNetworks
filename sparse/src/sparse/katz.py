@@ -1,6 +1,10 @@
 import numpy as np
 
 
+class ConvergenceError(Exception):
+    def __init__(self, iterations: int) -> None:
+        super().__init__(f"Failed to converage after {iterations} iterations.")
+
 def katz_centrality(
     graph,
     alpha: float = 0.1,
@@ -13,9 +17,14 @@ def katz_centrality(
     n = graph.size
     e = np.ones((n, 1))
     last = e.copy()
-    for _ in range(max_iter):
+    last_error = -float("inf")
+    for iter_step in range(max_iter):
+        print(f"power iteration step: {iter_step=}")
         current = alpha * A.dot(last) + beta * e
         error = sum((abs(current[i] - last[i]) for i in range(n)))
+        if error > last_error:
+            raise ConvergenceError(iter_step)
+        last_error = error
         if error < n * tol:
             centrality = current.flatten().tolist()
             if normalized:

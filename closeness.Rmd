@@ -1,0 +1,14 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(arrow)
+```
+
+```{r}
+df <- read_parquet("")
+```
+
