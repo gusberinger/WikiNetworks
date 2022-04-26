@@ -65,12 +65,14 @@ A small-world network is a graph where each vertex is connected to few vertices,
 
 \section{Sparse Adjacency Matrices}
 
-The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 5,000,000%TODO
-vertices. Therefore, a dense representation of the adjacency matrix would have $5 * 10^12$ vertices. This is clearly not scalable.
+The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 5,000,000 %TODO
+vertices.
+Therefore, a dense representation of the adjacency matrix would have $5 * 10^{12}$ vertices. This is clearly not scalable. Since most pages only have 100%TODO
+links, this is clearly an inefficient way to store the adjacency matrix.
 
 Instead, we employ sparse matrices to efficiently store the adjacency matrix of the graph in memory. Instead of storing the whole Adjacency matrix, the sparse matrix stores the location of non-zero elements.
 
-The scipy implmentation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. 
+The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. 
 
 
 
@@ -83,7 +85,10 @@ Degree centrality is one of the simplest forms of centrality. The indegree of a 
 To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
 
 
-There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. The article for ISBN has indegree TODO, but only TODO outdegree. In fact, TODO percent of articles point to the ISBN page. This is because any article with a book in the references will contain a link to the ISBN article. For similar reasons the pages have all have excessive indegree compared to their outdegree.
+There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. The article for ISBN has indegree of 1,322,167, but only an outdegree of 559. In fact, 20 percent of all articles link to the ISBN page. This is because any article with a book in the references will contain a link to the ISBN article.
+For similar reasons the pages, \textbf{Wayback\_Machine} and \textbf{OCLC} all have all have excessive indegree compared to their outdegree.
+
+In order to get more useful results in the graph, it would be useful to remove the vertices with excessive indegree. However, this also removes actual connections to that article that aren't superfluous. For example, the page \textbf{International Organization for Standardization} has a link to the page \textbf{ISBN} that isn't from a citation. However, it is impossible to distinguish superfluous edges from real edges without parsing all of Wikipedia from scratch.
 
 \section{Closeness Centrality}
 
@@ -125,7 +130,9 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
 \end{enumerate}
 
 \subsection*{Results}
-TODO
+
+A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy.
+
 
 
 
@@ -192,6 +199,8 @@ Using this search we can identify a tunnel of articles, from "Billboard Top Rock
 
 One property of the hyperlink graph that isn't explored here is the order of the links. It is observable that repeatedly clicking the first link in most articles will eventually reach the Philosophy page. This is likely due to the definitional nature of the first paragraph in the article, that the first link in the article further abstracts the page.
 
+
+Another centrality measure that has not been implemented yet is betweeness centrality.
 
 
 \section{Appendix}
