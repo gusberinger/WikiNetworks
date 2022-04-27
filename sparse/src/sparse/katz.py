@@ -22,8 +22,8 @@ def katz_centrality(
         print(f"power iteration step: {iter_step=}")
         current = alpha * A.dot(last) + beta * e
         error = sum((abs(current[i] - last[i]) for i in range(n)))
-        if error > last_error:
-            raise ConvergenceError(iter_step)
+        # if error > last_error:
+        #     raise ConvergenceError(iter_step)
         last_error = error
         if error < n * tol:
             centrality = current.flatten().tolist()
@@ -33,5 +33,8 @@ def katz_centrality(
             else:
                 return centrality
         last = current.copy()
-
-    raise ValueError(f"Failed to converge in {max_iter} iterations.")
+        
+    centrality = current.flatten().tolist()
+    norm = np.sign(sum(centrality)) * np.linalg.norm(centrality)
+    return list(map(float, centrality / norm))
+    # raise ValueError(f"Failed to converge in {max_iter} iterations.")

@@ -6,9 +6,95 @@ output: html_notebook
 ```{r}
 library(tidyverse)
 library(arrow)
+library(knitr)
+
+katz <- read_parquet("wikipedia/report/katz_centrality.parquet")
+closeness <- read_parquet("wikipedia/report/centrality.parquet")
+degree <- read_parquet("wikipedia/report/degree_centrality.parquet")
+df <- katz %>% 
+  left_join(closeness, by="article_id") %>% 
+  left_join(degree, by="article_id") %>%
+  select(article_id, title, katz_centrality, centrality, in_degree, out_degree) %>%
+  rename(closeness_centrality = centrality)
+
 ```
 
+
 ```{r}
-df <- read_parquet("")
+df %>%
+  filter(in_degree < 1000) %>%
+  ggplot(aes(x = in_degree)) + 
+  geom_histogram(bins=50) +
+  labs(title="Degree Distribution", x = "Indegree", y = "Count") +
+  scale_x_continuous(breaks = seq(0, 1000, 100)) +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
+
+
+```{r}
+df %>%
+  filter(out_degree < 1000) %>%
+  ggplot(aes(x = out_degree)) + 
+  geom_histogram(bins=40) +
+  labs(title="Degree Distribution", x = "Outdegree", y = "Count") +
+  scale_x_continuous(breaks = seq(0, 1000, 100)) +
+  scale_y_continuous(labels = scales::comma)
+
+  
+```
+
+
+
+
+```{r}
+qplot(df$katz_centrality)
+```
+
+
+Katz
+```{r}
+report <- df %>%
+  arrange(desc(katz_centrality)) %>%
+  select(article_id, title, katz_centrality) %>%
+  head(20)
+  
+  
+kable(report, "latex", booktabs=TRUE)
+```
+
+
+Closeness
+```{r}
+report <- df %>%
+  arrange(desc(closeness_centrality)) %>%
+  select(article_id, title, closeness_centrality) %>%
+  head(20)
+  
+  
+kable(report, "latex", booktabs=TRUE)
+```
+
+
+Indegree to outdegree
+```{r}
+report <- df %>%
+  arrange(desc(in_degree)) %>%
+  select(article_id, title, in_degree) %>%
+  head(20)
+  
+  
+kable(report, "latex", booktabs=TRUE)
+```
+
+
+
+
+
+
+
+```{r}
+df$centrality %>% unique %>% length
 ```
 
