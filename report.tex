@@ -74,12 +74,14 @@ links, this is clearly an inefficient way to store the adjacency matrix.
 
 Instead, we employ sparse matrices to efficiently store the adjacency matrix of the graph in memory. Instead of storing the whole Adjacency matrix, the sparse matrix stores the location of non-zero elements.
 
-The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. 
-
-
+The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory.
 
 
 \section{Degree Distribution}
+
+
+
+
 
 \section{Degree Centrality}
 
@@ -91,6 +93,36 @@ There are several pages in the Wikipedia network with excessive indegree compare
 For similar reasons the pages, \textbf{Wayback\_Machine} and \textbf{OCLC} all have all have excessive indegree compared to their outdegree.
 
 In order to get more useful results in the graph, it would be useful to remove the vertices with excessive indegree. However, this also removes actual connections to that article that aren't superfluous. For example, the page \textbf{International Organization for Standardization} has a link to the page \textbf{ISBN} that isn't from a citation. However, it is impossible to distinguish superfluous edges from real edges without parsing all of Wikipedia from scratch.
+
+\begin{figure}
+    \centering
+    \caption{Highest Indegree}
+    \begin{tabular}{rlr}
+        \toprule
+        article\_id & title & in\_degree\\
+        \midrule
+        14919 & International\_Standard\_Book\_Number & 1305902\\
+        48361 & Geographic\_coordinate\_system & 1151082\\
+        25175562 & Virtual\_International\_Authority\_File & 904960\\
+        18852926 & International\_Standard\_Name\_Identifier & 525539\\
+        422994 & Digital\_object\_identifier & 471024\\
+        \addlinespace
+        3434750 & United\_States & 440874\\
+        35412202 & Wikidata & 438109\\
+        30463 & Taxonomy\_(biology) & 432978\\
+        23538754 & Wayback\_Machine & 411661\\
+        30890 & Time\_zone & 406023\\
+        \addlinespace
+        2987862 & Global\_Biodiversity\_Information\_Facility & 388044\\
+        2855554 & IMDb & 339971\\
+        39736 & Binomial\_nomenclature & 334349\\
+        11039790 & Animal & 332711\\
+        8439 & Diacritic & 322697\\
+        \bottomrule
+    \end{tabular}
+\end{figure}
+    
+
 
 \section{Closeness Centrality}
 
@@ -161,12 +193,6 @@ A limitation of the algorithm is that each breadth-first search takes 5 minutes 
         31717 & United\_Kingdom & 0.4838709\\
         883885 & OCLC & 0.4838709\\
         5042916 & Canada & 0.4838709\\
-        \addlinespace
-    8569916 & English\_language & 0.4838709\\
-    17416221 & South\_Africa & 0.4838709\\
-    25175562 & Virtual\_International\_Authority\_File & 0.4838709\\
-    10568 & Association\_football & 0.4687499\\
-    15573 & Japan & 0.4687499\\
     \bottomrule
 \end{tabular}
 \end{figure}
@@ -204,6 +230,30 @@ Therefore, we use power iteration to compute the measure instead.
 
 \section*{Results}
 
+\begin{tabular}{rlr}
+    \toprule
+    article\_id & title & katz\_centrality\\
+    \midrule
+    14919 & International\_Standard\_Book\_Number & 0.0864162\\
+    422994 & Digital\_object\_identifier & 0.0549040\\
+    48361 & Geographic\_coordinate\_system & 0.0511208\\
+    25175562 & Virtual\_International\_Authority\_File & 0.0387391\\
+    23538754 & Wayback\_Machine & 0.0342068\\
+    \addlinespace
+    234930 & International\_Standard\_Serial\_Number & 0.0341706\\
+    30890 & Time\_zone & 0.0285691\\
+    5843419 & France & 0.0271659\\
+    3434750 & United\_States & 0.0267877\\
+    35412202 & Wikidata & 0.0253573\\
+    \addlinespace
+    48455863 & Semantic\_Scholar & 0.0251241\\
+    503009 & PubMed & 0.0229752\\
+    47548 & Daylight\_saving\_time & 0.0222805\\
+    30463 & Taxonomy\_(biology) & 0.0222407\\
+    19828134 & Plant & 0.0219509\\
+    \bottomrule
+    \end{tabular}
+
 \section{Graph Radius \& Diameter}
 
 The eccentricity of a vertex $v_i$ is the greatest distance between any other vertex $v$. That is, $e(v_i) = \max d(v_i, v)_{v \in V}$.
@@ -228,6 +278,10 @@ Instead of starting the breadth first search from a uniformly random node, we st
 
 Using this search we can identify a tunnel of articles, from "Billboard Top Rock'n'Roll Hits: 1972" to "Billboard Top Hits: 1995". Where only a single path with 23 articles exists between the two articles.
 
+
+\subsection*{Results}
+
+Using 20 iterations to calculate the radius and diameter, the radius and diameter are both 33. That is, the eccentricity of the 20 tested nodes are all 33.
 
 
 \section*{Conclusions}
