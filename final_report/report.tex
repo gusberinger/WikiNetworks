@@ -10,6 +10,8 @@
 \usepackage{fullpage}
 \usepackage{booktabs}
 \usepackage[]{float}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -63,7 +65,12 @@ Every Wikipedia article contains links to other articles. If the article referen
 The Wikipedia hyperlink graph is the graph with every article as a vertex. The edges between the vertices are the links between the articles.
 
 It is observable that the Wikipedia hyperlink graph is a small world network.
-A small-world network is a graph where each vertex is connected to few vertices, but can reach all other vertices within a few steps. 
+A small-world network is a graph where each vertex is connected to few vertices, but can reach all other vertices within a few steps.
+
+
+Define strongly connected.
+
+
 
 \section{Sparse Adjacency Matrices}
 
@@ -77,11 +84,17 @@ Instead, we employ sparse matrices to efficiently store the adjacency matrix of 
 The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory.
 
 
+
 \section{Degree Distribution}
 
 
+\begin{figure}[H]
+    \includegraphics[width=8cm]{in_degree_dist}
+\end{figure}
 
-
+\begin{figure}[H]
+    \includegraphics[width=8cm]{out_degree_dist}
+\end{figure}
 
 \section{Degree Centrality}
 
