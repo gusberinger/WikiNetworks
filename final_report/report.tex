@@ -74,9 +74,9 @@ Define strongly connected.
 
 \section{Sparse Adjacency Matrices}
 
-The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 5,000,000 %TODO
+The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 6,102,910 %TODO
 vertices.
-Therefore, a dense representation of the adjacency matrix would have $5 * 10^{12}$ vertices. This is clearly not scalable. Since most pages only have 100%TODO
+Therefore, a dense representation of the adjacency matrix would have $3.7 * 10^{13}$ vertices. This is clearly not scalable. Since most pages only have 100
 links, this is clearly an inefficient way to store the adjacency matrix.
 
 Instead, we employ sparse matrices to efficiently store the adjacency matrix of the graph in memory. Instead of storing the whole Adjacency matrix, the sparse matrix stores the location of non-zero elements.
@@ -85,18 +85,44 @@ The \textbf{scipy} implementation of the csr matrix format holds three arrays th
 
 
 
+
 \section{Degree Distribution}
 
+We describe the distribution for the indegree and outdegree of the strongly connected network.
 
-\begin{figure}[H]
-    \includegraphics[width=8cm]{in_degree_dist}
+
+The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find that 1.468 of vertices in the network have indegree larger than 10,000.
+
+
+
+\begin{figure}
+    \centering
+    \caption[]{Indegree Statistics}
+    \begin{tabular}{rrrrr}
+        \toprule
+        Q1 & Median & Mean & Q3 & Maximum\\
+        \midrule
+        4 & 19 & 91.46176 & 81 & 1,305,902\\
+        \bottomrule
+    \end{tabular}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=8cm]{out_degree_dist}
+    \caption{Entire Network Degree Distribution}
+    \centering
+    \includegraphics[width=5cm]{in_degree_dist}
 \end{figure}
 
-\section{Degree Centrality}
+\begin{figure}[H]
+    \caption{Entire Network Degree Distribution}
+    \centering
+    \includegraphics[width=5cm]{out_degree_dist}
+\end{figure}
+
+
+\section*{Centrality}
+
+\subsection{Degree Centrality}
 
 Degree centrality is one of the simplest forms of centrality. The indegree of a vertex in a directed graph is the number of edges that point to the vertex. The outdegree of a vertex is the number of edges originating from that vertex.
 To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
@@ -137,7 +163,7 @@ In order to get more useful results in the graph, it would be useful to remove t
     
 
 
-\section{Closeness Centrality}
+\subsection{Closeness Centrality}
 
 
 The idea of closeness centrality is how close any node is to another node in the graph.
@@ -176,7 +202,7 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
     
 \end{enumerate}
 
-\subsection*{Results}
+\subsubsection*{Results}
 
 A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
@@ -214,7 +240,7 @@ A limitation of the algorithm is that each breadth-first search takes 5 minutes 
 A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
 
-\section{Katz Centrality}
+\subsection{Katz Centrality}
 
 The Katz Centrality measure was introduced in 1953 by Leo Katz. 
 In this measure of centrality, the weighted count of incoming paths to each node determines it's importance in the network. The attenuation factor $\alpha$ changes how quickly the weights decrease the importance of walks.
@@ -241,7 +267,7 @@ Then,
 However, with extremely large matrices the inverse is difficult and imprecise to compute directly.
 Therefore, we use power iteration to compute the measure instead.
 
-\section*{Results}
+\subsubsection*{Results}
 
 \begin{tabular}{rlr}
     \toprule
@@ -294,10 +320,12 @@ Using this search we can identify a tunnel of articles, from "Billboard Top Rock
 
 \subsection*{Results}
 
-Using 20 iterations to calculate the radius and diameter, the radius and diameter are both 33. That is, the eccentricity of the 20 tested nodes are all 33.
+We estimate the radius and diameter of the 94.7\% of vertices that are strongly connected.
+Using 20 iterations, the radius and diameter are both estimated at 33. That is, the eccentricity of the 20 tested nodes are all 33.
+It is not clear if the estimated radius and diameter corresponds to the actual radius and diameter.
 
-
-\section*{Conclusions}
+If the estimation is accurate, then from any article, the rest of the cluster is at most 33 clicks away.
+This measure is robust to change against removing nodes. Removing the first 10,000 vertices with the highest indegree results in no change to the estimated radius and diameter. 
 
 
 \section{Further Research}
