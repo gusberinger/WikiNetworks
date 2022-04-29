@@ -74,12 +74,20 @@ If a directed graph has an undirected graph that is connected, it is weakly conn
 
 \section{Sparse Adjacency Matrices}
 
-The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 6,102,910 %TODO
-vertices.
-Therefore, a dense representation of the adjacency matrix would have $3.7 * 10^{13}$ vertices. This is clearly not scalable. Since most pages only have 100
-links, this is clearly an inefficient way to store the adjacency matrix.
+The size of the wikipedia hyperlink graph presents challenges for computing any graph properties.
+% The wikipedia hyperlink graph has over 6 million vertices.
+It is not trivial to construct the adjacency matrix of the graph without overflowing computer memory.
+The most popular graph package in python, Networkx, runs out of RAM within a minute.
+% The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph.
+% When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory.
+The Wikipedia hyperlink graph has 6,102,910 vertices.
+Therefore, a dense representation of the adjacency matrix would need over $3.7 * 10^{13}$ units of storage for each cell in the matrix.
+This is clearly not scalable.
+Since most pages only have 100 links, there is clearly a more efficient way to store the matrix.
 
-Instead, we employ sparse matrices to efficiently store the adjacency matrix of the graph in memory. Instead of storing the whole Adjacency matrix, the sparse matrix stores the location of non-zero elements.
+We employ sparse matrices to efficiently store the adjacency matrix of the graph in memory.
+Instead of storing the whole adjacency matrix, a sparse matrix stores only the location of non-zero elements.
+We use the compressed sparse row format to store the matrix.
 
 The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
 
@@ -93,6 +101,8 @@ We describe the distribution for the indegree and outdegree of the strongly conn
 
 The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find that 1.468 of vertices in the network have indegree larger than 10,000.
 
+The outdegree distribution grows before declining. It has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the relevence of the article and the size of the graph.
+
 
 
 \begin{figure}[H]
@@ -103,7 +113,7 @@ The indegree distribution has a smooth exponential descent. Most of the network 
         & Q1 & Median & Mean & Q3 & Maximum\\
         \midrule
         Outdegree & 4 & 19 & 91.46176 & 81 & 1,305,902\\
-        Indegree & 17 & 39 & 91.46176 & 107 & 11897\\
+        Indegree & 17 & 39 & 91.46176 & 107 & 11,897\\
         \bottomrule
     \end{tabular}
 \end{figure}
@@ -207,9 +217,10 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
 
 \subsubsection*{Results}
 
-A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
+% A limitation of the implementation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
-
+The biggest difference with the closness centrality metric is that the World War II metric is at the top. This is the only article that is not a country or a reference vertice to make the top of the list for the metrics.
+% It's not surprising that World War II would be a central topic on Wikipedia, nearly all countries 
 
 \begin{figure}[H]
     \caption[fig]{Closeness Centrality}
@@ -300,6 +311,12 @@ We see that high degree nodes dominate in Katz Centrality.
 The top five nodes that are listed all have very high indegree.
 The majority of the highest scoring vertices seem to be reference nodes, such as \textbf{International\_Standard\_Serial\_Number}, \textbf{Virtual\_International Authority\_File}, and \textbf{PubMed}.
 The only exceptions are the two country articles, \textbf{United\_States} and \textbf{France}.
+
+\subsection*{Conclusions}
+
+In order to properly identify important articles, the closeness centrality metric is better.
+The closeness centrality metric promotes highly referenced topics, 
+
 
 \section{Graph Radius \& Diameter}
 
