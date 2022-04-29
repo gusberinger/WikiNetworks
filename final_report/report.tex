@@ -7,9 +7,11 @@
 \usepackage[shortlabels]{enumitem}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{fullpage}
 \usepackage{booktabs}
 \usepackage[]{float}
+\usepackage{graphicx}
+\usepackage{subfig}
+\graphicspath{ {./images/} }
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -63,25 +65,67 @@ Every Wikipedia article contains links to other articles. If the article referen
 The Wikipedia hyperlink graph is the graph with every article as a vertex. The edges between the vertices are the links between the articles.
 
 It is observable that the Wikipedia hyperlink graph is a small world network.
-A small-world network is a graph where each vertex is connected to few vertices, but can reach all other vertices within a few steps. 
+A small-world network is a graph where each vertex is connected to few vertices, but can reach all other vertices within a few steps.
+
+An undirected graph is connected when there is a path between any two vertices in the graph.
+If there is a path between any two vertices in a directed graph, it is a strongly connected.
+If a directed graph has an undirected graph that is connected, it is weakly connected.
+
 
 \section{Sparse Adjacency Matrices}
 
-The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 5,000,000 %TODO
+The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph. When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory. The Wikipedia hyperlink graph has 6,102,910 %TODO
 vertices.
-Therefore, a dense representation of the adjacency matrix would have $5 * 10^{12}$ vertices. This is clearly not scalable. Since most pages only have 100%TODO
+Therefore, a dense representation of the adjacency matrix would have $3.7 * 10^{13}$ vertices. This is clearly not scalable. Since most pages only have 100
 links, this is clearly an inefficient way to store the adjacency matrix.
 
 Instead, we employ sparse matrices to efficiently store the adjacency matrix of the graph in memory. Instead of storing the whole Adjacency matrix, the sparse matrix stores the location of non-zero elements.
 
-The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. 
+The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
 
 
 
 
 \section{Degree Distribution}
 
-\section{Degree Centrality}
+We describe the distribution for the indegree and outdegree of the strongly connected network.
+
+
+The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find that 1.468 of vertices in the network have indegree larger than 10,000.
+
+
+
+\begin{figure}[H]
+    \centering
+    \caption[]{Degree Statistics}
+    \begin{tabular}{lrrrrr}
+        \toprule
+        & Q1 & Median & Mean & Q3 & Maximum\\
+        \midrule
+        Outdegree & 4 & 19 & 91.46176 & 81 & 1,305,902\\
+        Indegree & 17 & 39 & 91.46176 & 107 & 11897\\
+        \bottomrule
+    \end{tabular}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \parbox{6cm}{
+    \includegraphics[width=6cm]{in_degree_dist}
+    \caption{Indegree Distribution}
+    \label{fig:2figsA}}
+    \qquad
+    \begin{minipage}{6cm}
+    \includegraphics[width=6cm]{out_degree_dist}
+    \caption{Outdegree Distribution}
+    \label{fig:2figsB}
+    \end{minipage}
+\end{figure}
+
+
+\section*{Centrality}
+
+\subsection{Degree Centrality}
 
 Degree centrality is one of the simplest forms of centrality. The indegree of a vertex in a directed graph is the number of edges that point to the vertex. The outdegree of a vertex is the number of edges originating from that vertex.
 To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
@@ -92,7 +136,37 @@ For similar reasons the pages, \textbf{Wayback\_Machine} and \textbf{OCLC} all h
 
 In order to get more useful results in the graph, it would be useful to remove the vertices with excessive indegree. However, this also removes actual connections to that article that aren't superfluous. For example, the page \textbf{International Organization for Standardization} has a link to the page \textbf{ISBN} that isn't from a citation. However, it is impossible to distinguish superfluous edges from real edges without parsing all of Wikipedia from scratch.
 
-\section{Closeness Centrality}
+\begin{figure}[H]
+    \centering
+    \caption{Highest Indegree}
+    \begin{tabular}{llr}
+        \toprule
+        Article ID & Title & In Degree\\
+        \midrule
+        14919 & International\_Standard\_Book\_Number & 1305902\\
+        48361 & Geographic\_coordinate\_system & 1151082\\
+        25175562 & Virtual\_International\_Authority\_File & 904960\\
+        18852926 & International\_Standard\_Name\_Identifier & 525539\\
+        422994 & Digital\_object\_identifier & 471024\\
+        \addlinespace
+        3434750 & United\_States & 440874\\
+        35412202 & Wikidata & 438109\\
+        30463 & Taxonomy\_(biology) & 432978\\
+        23538754 & Wayback\_Machine & 411661\\
+        30890 & Time\_zone & 406023\\
+        \addlinespace
+        2987862 & Global\_Biodiversity\_Information\_Facility & 388044\\
+        2855554 & IMDb & 339971\\
+        39736 & Binomial\_nomenclature & 334349\\
+        11039790 & Animal & 332711\\
+        8439 & Diacritic & 322697\\
+        \bottomrule
+    \end{tabular}
+\end{figure}
+    
+
+
+\subsection{Closeness Centrality}
 
 
 The idea of closeness centrality is how close any node is to another node in the graph.
@@ -131,7 +205,7 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
     
 \end{enumerate}
 
-\subsection*{Results}
+\subsubsection*{Results}
 
 A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
@@ -161,21 +235,14 @@ A limitation of the algorithm is that each breadth-first search takes 5 minutes 
         31717 & United\_Kingdom & 0.4838709\\
         883885 & OCLC & 0.4838709\\
         5042916 & Canada & 0.4838709\\
-        \addlinespace
-    8569916 & English\_language & 0.4838709\\
-    17416221 & South\_Africa & 0.4838709\\
-    25175562 & Virtual\_International\_Authority\_File & 0.4838709\\
-    10568 & Association\_football & 0.4687499\\
-    15573 & Japan & 0.4687499\\
     \bottomrule
 \end{tabular}
 \end{figure}
 
 
-A limitation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
 
-\section{Katz Centrality}
+\subsection{Katz Centrality}
 
 The Katz Centrality measure was introduced in 1953 by Leo Katz. 
 In this measure of centrality, the weighted count of incoming paths to each node determines it's importance in the network. The attenuation factor $\alpha$ changes how quickly the weights decrease the importance of walks.
@@ -202,7 +269,37 @@ Then,
 However, with extremely large matrices the inverse is difficult and imprecise to compute directly.
 Therefore, we use power iteration to compute the measure instead.
 
-\section*{Results}
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{llr}
+        \toprule
+        Article ID & Title & Katz Centrality\\
+        \midrule
+        14919 & International\_Standard\_Book\_Number & 0.0864162\\
+        422994 & Digital\_object\_identifier & 0.0549040\\
+        48361 & Geographic\_coordinate\_system & 0.0511208\\
+        25175562 & Virtual\_International\_Authority\_File & 0.0387391\\
+    23538754 & Wayback\_Machine & 0.0342068\\
+    \addlinespace
+    234930 & International\_Standard\_Serial\_Number & 0.0341706\\
+    30890 & Time\_zone & 0.0285691\\
+    5843419 & France & 0.0271659\\
+    3434750 & United\_States & 0.0267877\\
+    35412202 & Wikidata & 0.0253573\\
+    \addlinespace
+    48455863 & Semantic\_Scholar & 0.0251241\\
+    503009 & PubMed & 0.0229752\\
+    47548 & Daylight\_saving\_time & 0.0222805\\
+    30463 & Taxonomy\_(biology) & 0.0222407\\
+    19828134 & Plant & 0.0219509\\
+    \bottomrule
+    \end{tabular}
+\end{figure}
+
+We see that high degree nodes dominate in Katz Centrality.
+The top five nodes that are listed all have very high indegree.
+The majority of the highest scoring vertices seem to be reference nodes, such as \textbf{International\_Standard\_Serial\_Number}, \textbf{Virtual\_International Authority\_File}, and \textbf{PubMed}.
+The only exceptions are the two country articles, \textbf{United\_States} and \textbf{France}.
 
 \section{Graph Radius \& Diameter}
 
@@ -221,7 +318,7 @@ where $r$ is the radius and $d$ is the diameter.
 In the Wikipedia hyperlink graph the diameter can be conceptualized as given any article, how what is the maximum number of clicks to any other article in a shortest path. The radius can similarly be conceptualized as the minimum number of clicks to any other articles in a shortest path.
 
 
-A naive method of estimating the radius and the diameter is running multiple breadth first searches from random nodes and returning the minimum and maximum of the result. Boitmanis et. al presents a better approximation algorithm.
+A naïve method of estimating the radius and the diameter is running multiple breadth first searches from random nodes and returning the minimum and maximum of the result. Boitmanis et. al presents a better approximation algorithm.
 
 % https://sci-hub.se/https://dl.acm.org/doi/10.1007/11764298_9
 Instead of starting the breadth first search from a uniformly random node, we start the breadth first search from the node furthest from the set of already processed nodes. This can be done in $O(n)$ time by keeping track of the results each breadth first search.
@@ -229,8 +326,14 @@ Instead of starting the breadth first search from a uniformly random node, we st
 Using this search we can identify a tunnel of articles, from "Billboard Top Rock'n'Roll Hits: 1972" to "Billboard Top Hits: 1995". Where only a single path with 23 articles exists between the two articles.
 
 
+\subsection*{Results}
 
-\section*{Conclusions}
+We estimate the radius and diameter of the 94.7\% of vertices that are strongly connected.
+Using 20 iterations, the radius and diameter are both estimated at 33. That is, the eccentricity of the 20 tested nodes are all 33.
+It is not clear if the estimated radius and diameter corresponds to the actual radius and diameter.
+
+If the estimation is accurate, then from any article, the rest of the cluster is at most 33 clicks away.
+This measure is robust to change against removing nodes. Removing the first 10,000 vertices with the highest indegree results in no change to the estimated radius and diameter. 
 
 
 \section{Further Research}

@@ -10,7 +10,7 @@ library(arrow)
 ```
 
 ```{r}
-df <- read_parquet("dump/katz-centrality.parquet") %>%
+df <- read_parquet("wikipedia/dump/katz-centrality.parquet") %>%
   mutate(degree_ratio = in_degree / out_degree)
 ```
 

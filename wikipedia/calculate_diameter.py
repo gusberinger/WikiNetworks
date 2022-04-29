@@ -1,15 +1,12 @@
-import igraph
-import scipy.sparse
 from load_wiki import load_wikipedia
-from helpers import SPARSE_MATRIX_PATH
-import logging
+from helpers import REPORT_PATH
+import sparse
 
-logging.basicConfig(
-	format='%(asctime)s %(levelname)-8s %(message)s',
-	level=logging.INFO,
-	datefmt='%Y-%m-%d %H:%M:%S')
-logging.getLogger().setLevel(logging.INFO)
+CENTRALITY_REPORT = REPORT_PATH.joinpath("centrality.parquet.new")
 
-logging.info("start")
-graph = load_wikipedia()
-logging.info("done")
+if __name__ == "__main__":
+    G = load_wikipedia()
+    G = G.get_largest_component()
+    diameter = sparse.estimate_diameter(G, 4)
+    print(diameter)
+

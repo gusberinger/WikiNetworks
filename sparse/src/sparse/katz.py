@@ -33,5 +33,8 @@ def katz_centrality(
             else:
                 return centrality
         last = current.copy()
-
+        
+    # centrality = current.flatten().tolist()
+    # norm = np.sign(sum(centrality)) * np.linalg.norm(centrality)
+    # return list(map(float, centrality / norm))
     raise ValueError(f"Failed to converge in {max_iter} iterations.")

@@ -2,12 +2,12 @@ from load_wiki import load_wikipedia
 from helpers import REPORT_PATH
 import sparse
 
-CENTRALITY_REPORT = REPORT_PATH.joinpath("closeness_centrality.parquet")
+DEGREE_REPORT = REPORT_PATH.joinpath("degree_centrality.parquet")
 
 if __name__ == "__main__":
     G = load_wikipedia()
     G = G.get_largest_component()
-    scores = sparse.closeness_centrality(60, G)
+    scores = sparse.katz_centrality(G, alpha=0.0000007)
     df = G.labels._internal_df
-    df["closeness"] = scores
-    df.to_parquet(CENTRALITY_REPORT)
+    df["katz_centrality"] = scores
+    df.to_parquet(DEGREE_REPORT)
