@@ -89,7 +89,7 @@ We employ sparse matrices to efficiently store the adjacency matrix of the graph
 Instead of storing the whole adjacency matrix, a sparse matrix stores only the location of non-zero elements.
 We use the compressed sparse row format to store the matrix.
 
-The \textbf{scipy} implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
+The Python package scipy provides an implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
 
 
 
@@ -101,8 +101,7 @@ We describe the distribution for the indegree and outdegree of the strongly conn
 
 The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find that 1.468 of vertices in the network have indegree larger than 10,000.
 
-The outdegree distribution grows before declining. It has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the relevence of the article and the size of the graph.
-
+The outdegree distribution grows before declining. It has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the relevance of the article and the size of the graph.
 
 
 \begin{figure}[H]
@@ -135,16 +134,22 @@ The outdegree distribution grows before declining. It has a much smaller maximum
 
 \section*{Centrality}
 
+A problem in graph theory is how to rank vertices in a graph by their importance. That is, figuring out which nodes in a network are central.
+We evaluate three different metrics of centrality in the Wikipedia hyperlink graph.
+
+
 \subsection{Degree Centrality}
 
-Degree centrality is one of the simplest forms of centrality. The indegree of a vertex in a directed graph is the number of edges that point to the vertex. The outdegree of a vertex is the number of edges originating from that vertex.
+Degree centrality is one of the simplest forms of centrality.
+The indegree of a vertex in a directed graph is the number of edges that point to the vertex.
+The outdegree of a vertex is the number of edges originating from that vertex.
 To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
+% The adjacency matrix is not even required to compute degree centrality, 
 
 
-There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. The article for ISBN has indegree of 1,322,167, but only an outdegree of 559. In fact, 20 percent of all articles link to the ISBN page. This is because any article with a book in the references will contain a link to the ISBN article.
-For similar reasons the pages, \textbf{Wayback\_Machine} and \textbf{OCLC} all have all have excessive indegree compared to their outdegree.
 
-In order to get more useful results in the graph, it would be useful to remove the vertices with excessive indegree. However, this also removes actual connections to that article that aren't superfluous. For example, the page \textbf{International Organization for Standardization} has a link to the page \textbf{ISBN} that isn't from a citation. However, it is impossible to distinguish superfluous edges from real edges without parsing all of Wikipedia from scratch.
+
+
 
 \begin{figure}[H]
     \centering
@@ -174,15 +179,21 @@ In order to get more useful results in the graph, it would be useful to remove t
     \end{tabular}
 \end{figure}
     
+There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. 
+The article \textbf{International\_Standard\_Book\_Number} has an indegree of 1,322,167, but only an outdegree of 559. In fact, 20\% of all vertices in the graph have an edge connecting towards \textbf{International\_Standard\_Book\_Number}.
+% This is because any article with a book in the references will contain a link to that article.
+This is because of the automatic linking from references.
+Any article with a citation that has an ISBN identifier will link to the page \textbf{International\_Standard\_Book\_Number}.
+For similar reasons, the articles \textbf{Wayback\_Machine} and \textbf{OCLC} all have all have excessive indegree compared to their outdegree.
+
 
 
 \subsection{Closeness Centrality}
 
 
-The idea of closeness centrality is how close any node is to another node in the graph.
+The motivation for closeness centrality is to find how close one node is to different nodes in the network.
+% The idea of closeness centrality is how close any node is to another node in the graph.
 
-To find the exact closeness centrality for all agents in the network, we must solve the All Pairs Shortest Path problem. However, for large networks this is extremely computationally intensive. 
-Eppstein provides a near-linear time approximation for centrality when the diameter is $O(\log n)$. That is, when the graph is a small world network. Since the Wikipedia hyperlink graph is a small world network, this algorithm is a good fit.
 
 We are given a directed graph $G(V,E)$ with $n$ nodes and $m$ edges.
 A directed graph is strongly connected if there is path between any two vertices. We assume that $G$ is strongly connected.
@@ -194,6 +205,13 @@ Eppstein defines closeness centrality $c_v$ of a vertex $v$ as,
 \begin{equation*}
     c_v = \frac{n-1}{\sum_{u \in V}d(u,v)}
 \end{equation*} 
+The numerator $n-1$ normalizes the measure, making it comparable across different graphs.
+
+
+The single source shortest path problem involves finding the distance from a single source to all other nodes in the graph. For undirected graphs, 
+The all pairs shortest path problem is to find the shortest path between all possible pairs of vertices in the graph.
+To find the exact closeness centrality for all nodes in the network, we must solve the all pairs shortest path problem. However, for large networks this is extremely computationally intensive. 
+Eppstein provides a near-linear time approximation for centrality when the diameter is $O(\log n)$. That is, when the graph is a small world network. Since the Wikipedia hyperlink graph is a small world network, this algorithm is a good fit.
 
 Then Eppstein presents the following algorithm RAND for computing closeness centrality,
 \begin{enumerate}[1.]
@@ -201,7 +219,7 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
     Let k be the number of iterations needed to obtain the desired error bound.
 
     \item
-    In iteration $i$, pick vertex $v_i$ uniformly at random from $G$ and solve the SSSP problem with $v_i$ as the source.
+    In iteration $i$, pick vertex $v_i$ uniformly at random from $G$ and solve the single source shortest path problem with $v_i$ as the source.
 
     \item 
     Let
@@ -209,18 +227,19 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
         \hat{c}_ua = \frac{1}{\sum^k_{i=1} \frac{n d(v_i, u)}{k(n-1)}}
     \end{equation*}
     be the centrality estimator for vertex $u$.
-
-    Since the graph is unweighted, we use a breadth first search to solve the SSSP problem.
-
-    
 \end{enumerate}
+
+Since the graph is unweighted, we use a breadth first search to solve the SSSP problem.
 
 \subsubsection*{Results}
 
 % A limitation of the implementation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
-The biggest difference with the closness centrality metric is that the World War II metric is at the top. This is the only article that is not a country or a reference vertice to make the top of the list for the metrics.
+% The biggest difference with the closeness centrality metric is that the World War II metric is at the top.
+% This is the only article that is not a country or a reference vertex to make the top of the list for the metrics.
 % It's not surprising that World War II would be a central topic on Wikipedia, nearly all countries 
+
+
 
 \begin{figure}[H]
     \caption[fig]{Closeness Centrality}
@@ -250,7 +269,8 @@ The biggest difference with the closness centrality metric is that the World War
 \end{tabular}
 \end{figure}
 
-
+The World War II article is the only topic so far that is not a reference vertex or a country that has a high centrality. The importance of World War II within Wikipedia is not surprising. An unofficial Wikipedia game developed around 2010 called Clicks to Hitler, in which the participants try to reach the aforementioned page as quickly as possible.
+Most articles link to at least one country, and most countries link to the World War II article.
 
 
 \subsection{Katz Centrality}
@@ -314,8 +334,7 @@ The only exceptions are the two country articles, \textbf{United\_States} and \t
 
 \subsection*{Conclusions}
 
-In order to properly identify important articles, the closeness centrality metric is better.
-The closeness centrality metric promotes highly referenced topics, 
+The Katz Centrality and Indegree Centrality metrics
 
 
 \section{Graph Radius \& Diameter}
@@ -355,10 +374,10 @@ This measure is robust to change against removing nodes. Removing the first 10,0
 
 \section{Further Research}
 
-One property of the hyperlink graph that isn't explored here is the order of the links. It is observable that repeatedly clicking the first link in most articles will eventually reach the Philosophy page. This is likely due to the definitional nature of the first paragraph in the article, that the first link in the article further abstracts the page.
+One property of the hyperlink graph that isn't explored here is the order of the links. It is observable that repeatedly clicking the first link in nearly all articles will eventually lead to the Philosophy article. This is likely due to the definitional nature of the first paragraph in the article, that the first link in the article further abstracts the page.
 
 
-Another centrality measure that has not been implemented yet is betweeness centrality.
+% Another centrality measure that has not been implemented yet is betweeness centrality. This 
 
 
 \section{Appendix}
