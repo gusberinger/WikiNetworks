@@ -11,6 +11,7 @@
 \usepackage[]{float}
 \usepackage{graphicx}
 \usepackage{subfig}
+\usepackage{fullpage}
 \graphicspath{ {./images/} }
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -132,7 +133,7 @@ The outdegree distribution grows before declining. It has a much smaller maximum
 \end{figure}
 
 
-\section*{Centrality}
+\section{Centrality}
 
 A problem in graph theory is how to rank vertices in a graph by their importance. That is, figuring out which nodes in a network are central.
 We evaluate three different metrics of centrality in the Wikipedia hyperlink graph.
@@ -231,7 +232,7 @@ Then Eppstein presents the following algorithm RAND for computing closeness cent
 
 Since the graph is unweighted, we use a breadth first search to solve the SSSP problem.
 
-\subsubsection*{Results}
+\subsubsection{Results}
 
 % A limitation of the implementation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
 
@@ -332,7 +333,7 @@ The top five nodes that are listed all have very high indegree.
 The majority of the highest scoring vertices seem to be reference nodes, such as \textbf{International\_Standard\_Serial\_Number}, \textbf{Virtual\_International Authority\_File}, and \textbf{PubMed}.
 The only exceptions are the two country articles, \textbf{United\_States} and \textbf{France}.
 
-\subsection*{Conclusions}
+\subsection{Conclusions}
 
 The Katz Centrality and Indegree Centrality metrics
 
@@ -362,7 +363,7 @@ Instead of starting the breadth first search from a uniformly random node, we st
 Using this search we can identify a tunnel of articles, from "Billboard Top Rock'n'Roll Hits: 1972" to "Billboard Top Hits: 1995". Where only a single path with 23 articles exists between the two articles.
 
 
-\subsection*{Results}
+\subsection{Results}
 
 We estimate the radius and diameter of the 94.7\% of vertices that are strongly connected.
 Using 20 iterations, the radius and diameter are both estimated at 33. That is, the eccentricity of the 20 tested nodes are all 33.
@@ -383,7 +384,7 @@ One property of the hyperlink graph that isn't explored here is the order of the
 \section{Appendix}
 
 
-\subsection*{Katz Centrality}
+\subsection{Katz Centrality}
 \linespread{1}
 \begin{lstlisting}[language=Python]
 def katz_centrality(
