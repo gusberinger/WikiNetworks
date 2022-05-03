@@ -41,7 +41,7 @@
 \linespread{1.2}
 
 \author{Gus Beringer}
-\title{Capstone Project}
+\title{Capstone Project Draft}
 
 \date{\today}
 \newtheorem{theorem}{Theorem}
@@ -90,8 +90,28 @@ We employ sparse matrices to efficiently store the adjacency matrix of the graph
 Instead of storing the whole adjacency matrix, a sparse matrix stores only the location of non-zero elements.
 We use the compressed sparse row format to store the matrix.
 
-The Python package scipy provides an implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix. The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element. The \textbf{indptr} array contains the number of elements for each row in the matrix. With this information, the entire matrix can be accurately represented efficiently in memory. With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
+The Python package scipy provides an implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix.
+The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element.
+The \textbf{indptr} array maps the matrix values to the rows in the matrix.
+For an $m\times n$ matrix, the \textbf{indptr} array contains $m+1$ elements, where the first entry is always 0.
+To extract the values of row $i$, we set $s = \textbf{indptr}[i]$ and $t = \textbf{indptr}[i+1]$. Then, the values of the items at row $i$ are $\textbf{data}[s:t]$ with columns corresponding to the array $\textbf{indices}[s:t]$. 
 
+% With this information, the entire matrix can be accurately represented efficiently in memory.
+% With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
+
+We provide an example of the format with the following matrix.
+\begin{equation*}
+    \begin{pmatrix}
+        52 & 0  & 0  & 0  \\
+        0  & 0  & 43 & 0  \\
+        67 & 0  & 0  & 81  \\
+        0  & 20 & 0  & 0  \\
+    \end{pmatrix}
+\end{equation*}
+The \textbf{data} array contains the values $[52, 43, 67, 81, 20]$. The \textbf{indices} array contains the values $[0, 2, 0, 3, 1]$.
+The \textbf{indptr} array contains the values $[0, 1, 2, 4, 5]$.
+
+In this example, the gains of using a sparse matrix are minimal. Instead of 16 entries, the matrix is represented with 15 entries. However, when there are far more zeroes than non-zero elements, the sparse format is far smaller.
 
 
 
@@ -100,9 +120,9 @@ The Python package scipy provides an implementation of the csr matrix format hol
 We describe the distribution for the indegree and outdegree of the strongly connected network.
 
 
-The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find that 1.468 of vertices in the network have indegree larger than 10,000.
+The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find 1,468 of vertices in the network with indegree larger than 10,000.
 
-The outdegree distribution grows before declining. It has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the relevance of the article and the size of the graph.
+The outdegree distribution grows sharply before declining. It has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the relevance of the article and the size of the graph.
 
 
 \begin{figure}[H]
@@ -272,7 +292,7 @@ Since the graph is unweighted, we use a breadth first search to solve the SSSP p
 
 The World War II article is the only topic so far that is not a reference vertex or a country that has a high centrality. The importance of World War II within Wikipedia is not surprising. An unofficial Wikipedia game developed around 2010 called Clicks to Hitler, in which the participants try to reach the aforementioned page as quickly as possible.
 Most articles link to at least one country, and most countries link to the World War II article.
-
+% https://blogs.cornell.edu/info2040/2019/10/23/the-significance-of-hitlers-wikipedia-page/
 
 \subsection{Katz Centrality}
 
@@ -298,11 +318,36 @@ Then,
 \end{align*}
 % https://www.youtube.com/watch?v=DfV-pjRTlLg
 
-However, with extremely large matrices the inverse is difficult and imprecise to compute directly.
+To ensure that $C_{\textrm{Katz}}$ exists, we must choose an attenuation factor $\alpha$ such that the matrix $I - \alpha A$ is invertible. The matrix $I - \alpha A$ is non-invertible when,
+\begin{align*}
+    & \det (I - \alpha A) = 0 \\
+    \implies \; & \det (A - \frac{1}{\alpha} I) = 0.
+\end{align*}
+This is simply the characteristic equation of $A$. Hence, we must find eigenvalues that satisfy the equation $\det(A - \lambda I)$, where $\lambda = \frac{1}{\alpha}$. Then, $\alpha = \frac{1}{\lambda}$.
+
+Let $\lambda_1, \lambda_2, \dots, \lambda_n$ be the eigenvalues of $A$. We set $\alpha < \frac{1}{\max(\lambda_1, \dots, \lambda_n)}$.
+Then, $\max(\lambda_1, \dots, \lambda_n) < \frac{1}{\alpha}$. Thus, $I - \alpha A$ is invertible.
+
+% https://www.math.fsu.edu/~bertram/lectures/Centrality.pdf
+
+
+With extremely large matrices the inverse is difficult and imprecise to compute directly with a runtime of $O(n^3)$.
 Therefore, we use power iteration to compute the measure instead.
+
+We have,
+\begin{align*}
+    & C_{\textrm{Katz}} = (I - \alpha A)^{-1} \overrightarrow{1} \\
+    \implies & (I - \alpha A) C_{\textrm{Katz}} = \overrightarrow{1} \\
+    \implies & C_{\textrm{Katz}} = \alpha A C_{\textrm{Katz}} + \overrightarrow{1}
+\end{align*}
+We then define the following recurrence relation,
+\begin{align*}
+    x_k = \alpha A x_{k+1} + \overrightarrow{1}
+\end{align*} where the $x_k$ is an approximation of $C_{\textrm{Katz}}$. We then iterate until the norm of $x_{k} - x_{k-1}$ reaches a desired error.
 
 \begin{figure}[H]
     \centering
+    \caption{Katz Centrality Results}
     \begin{tabular}{llr}
         \toprule
         Article ID & Title & Katz Centrality\\
