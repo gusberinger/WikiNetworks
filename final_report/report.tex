@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[margin=1.5in, includeheadfoot]{geometry}
+% \usepackage[margin=1.5in, includeheadfoot]{geometry}
 \usepackage{biblatex-chicago}
 \usepackage{fancyhdr}
 \usepackage[fleqn]{amsmath}
@@ -13,6 +13,7 @@
 \usepackage{graphicx}
 \usepackage{subfig}
 \usepackage{hyperref}
+\usepackage{fullpage}
 \graphicspath{ {./images/} }
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -79,13 +80,13 @@ If a directed graph has an undirected graph that is connected, it is weakly conn
 \section{Sparse Adjacency Matrices}
 
 The Wikipedia hyperlink graph has 6,102,910 vertices, which creates challenges for representing the graph in a program.
-If we create an entry for every number in the adjacency matrix of $n$ nodes, that is a dense matrix, the program requires $n^2$ space in total.  
+If we create an entry for every number in the adjacency matrix of a graph with $n$ nodes, the program requires $n^2$ space in total.  
 For the wikipedia hyperlink graph, that's over $3.7 * 10^{13}$ entries.
 However, most of the numbers in the adjacency matrix are zero, so can store the matrix more efficiently by only keeping track of non-zero entries.
 
 The compressed sparse row (CSR) format is the most popular sparse matrix format.
-We outline the \textbf{scipy} implementation of the CSR format.
-There are three arrays that are used to represent the matrix, \textbf{data}, \textbf{indices}, and \textbf{data}.
+We outline the Python package \textbf{scipy}'s implementation of the CSR sparse matrix.
+There are three arrays that are used to represent the matrix, \textbf{data}, \textbf{indices}, and \textbf{indptr}.
 \autocite{scipy_doc}
 The \textbf{data} array contains the values for the non-zero elements in the order they appear in the matrix row by row.
 The \textbf{indices} array contains the index of the column for each non-zero element.
@@ -94,7 +95,7 @@ For an $m\times n$ matrix, the \textbf{indptr} array contains $m+1$ elements, wh
 
 To extract the values of an arbitrary row $i$, we set $s = \textbf{indptr}[i]$ and $t = \textbf{indptr}[i+1]$. Then, the values of the items at row $i$ are $\textbf{data}[s:t]$ with columns corresponding to the array $\textbf{indices}[s:t]$. 
 
-We provide an example of the format with the following matrix,
+We provide the following example of the format with the following matrix,
 \begin{equation*}
     \begin{pmatrix}
         52 & 0  & 0  & 0  \\
@@ -103,9 +104,9 @@ We provide an example of the format with the following matrix,
         0  & 20 & 0  & 0  \\
     \end{pmatrix}.
 \end{equation*}
-Then, \textbf{data} = $[52, 43, 67, 81, 20]$, \textbf{indices} = $[0, 2, 0, 3, 1]$, and \textbf{indptr} = $[0, 1, 2, 4, 5]$. The number $52$ appears first in the matrix in the 0th column, so \textbf{data}$[0] = 52$ and \textbf{indices}$[0] = 0$.
+Reading row by row we find that, \textbf{data} = $[52, 43, 67, 81, 20]$, \textbf{indices} = $[0, 2, 0, 3, 1]$, and \textbf{indptr} = $[0, 1, 2, 4, 5]$. The number $52$ appears first in the matrix in the 0th column, so \textbf{data}$[0] = 52$ and \textbf{indices}$[0] = 0$.
 
-In this example, the gains of using a sparse matrix are minimal. Instead of 16 entries, the matrix is represented with 15 entries. However, when there are far more zeroes than non-zero elements, the sparse format is far smaller.
+In this example, the gains of using a sparse matrix are minimal. Instead of 16 entries, the matrix is represented with 15 entries. However, when there are far more zeroes than non-zero elements, the sparse format is efficient.
 
 
 \section{Degree Distribution}
@@ -157,9 +158,8 @@ We evaluate and compare three different centrality metrics in the Wikipedia hype
 
 \subsection{Degree Centrality}
 
-Degree centrality is one of the simplest forms of centrality.
-
-To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
+Degree centrality is one of the simplest forms of centrality. The centrality of a node is simply the indegree or outdegree.
+To compute the indegree and outdegree we simply sum the rows or columns of the adjacency matrix.
 
 \subsubsection{Results}
 \begin{figure}[H]
@@ -192,21 +192,19 @@ To compute the indegree and outdegree we simply sum the rows and columns of the 
     
 There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. 
 The article \textbf{International\_Standard\_Book\_Number} has an indegree of 1,322,167, but only an outdegree of 559. In fact, 20\% of all vertices in the graph have an edge connecting towards \textbf{International\_Standard\_Book\_Number}.
-% This is because any article with a book in the references will contain a link to that article.
+
 This is because of the automatic linking from references.
 Any article with a citation that has an ISBN identifier will link to the page \textbf{International\_Standard\_Book\_Number}.
 For similar reasons, the articles \textbf{Wayback\_Machine} and \textbf{OCLC} all have all have excessive indegree compared to their outdegree.
 
-
-
 \subsection{Closeness Centrality}
 
-
-The motivation for closeness centrality is to find the nodes that are closest to the other nodes in the network.
+The motivation for closeness centrality is to identify the nodes that are closest to all other nodes in the network.
 
 We are given a directed graph $G(V,E)$ with $n$ nodes and $m$ edges.
-A directed graph is strongly connected if there is path between any two vertices. We assume that $G$ is strongly connected.
-The distance $d(u, v)$ between vertices $u$ and $v$ is the shortest possible path between the vertices. Since $G$ is strongly connected, $d(u, v)$ always exists.
+A directed graph is strongly connected if there is path between any two nodes. We assume that $G$ is strongly connected.
+The distance $d(u, v)$ between nodes $u$ and $v$ is the shortest possible path between the nodes.
+Since $G$ is strongly connected, $d(u, v)$ always exists.
 
 
 % Given a graph $G(V, E)$, the distance $d(u, v)$ between  vertices 
