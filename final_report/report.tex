@@ -73,59 +73,52 @@ An undirected graph is connected when there is a path between any two vertices i
 If there is a path between any two vertices in a directed graph, it is a strongly connected.
 If a directed graph has an undirected graph that is connected, it is weakly connected.
 
+% TODO: define adjacency matrix.
+
 
 \section{Sparse Adjacency Matrices}
 
-The size of the wikipedia hyperlink graph presents challenges for computing any graph properties.
-% The wikipedia hyperlink graph has over 6 million vertices.
-It is not trivial to construct the adjacency matrix of the graph without overflowing computer memory.
-The most popular graph package in python, Networkx, runs out of RAM within a minute.
-% The hardest part of constructing the hyperlink graph in memory is the enormous size of the graph.
-% When constructing the graph using the most common graph package in Python, network, the program quickly runs out of memory.
-The Wikipedia hyperlink graph has 6,102,910 vertices.
-Therefore, a dense representation of the adjacency matrix would need over $3.7 * 10^{13}$ units of storage for each cell in the matrix.
-This is clearly not scalable.
-Since most pages only have 100 links, there is clearly a more efficient way to store the matrix.
+The Wikipedia hyperlink graph has 6,102,910 vertices, which creates challenges for representing the graph in a program.
+If we create an entry for every number in the adjacency matrix of $n$ nodes, that is a dense matrix, the program requires $n^2$ space in total.  
+For the wikipedia hyperlink graph, that's over $3.7 * 10^{13}$ entries.
+However, most of the numbers in the adjacency matrix are zero, so can store the matrix more efficiently by only keeping track of non-zero entries.
 
-We employ sparse matrices to efficiently store the adjacency matrix of the graph in memory.
-Instead of storing the whole adjacency matrix, a sparse matrix stores only the location of non-zero elements.
-We use the compressed sparse row format to store the matrix.
-
-The Python package scipy provides an implementation of the csr matrix format holds three arrays that make up the graph.
+The compressed sparse row (CSR) format is the most popular sparse matrix format.
+We outline the \textbf{scipy} implementation of the CSR format.
+There are three arrays that are used to represent the matrix, \textbf{data}, \textbf{indices}, and \textbf{data}.
 \autocite{scipy_doc}
-The \textbf{data} array contains the values for the non-zero elements in the matrix.
-The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element.
+The \textbf{data} array contains the values for the non-zero elements in the order they appear in the matrix row by row.
+The \textbf{indices} array contains the index of the column for each non-zero element.
 The \textbf{indptr} array maps the matrix values to the rows in the matrix.
 For an $m\times n$ matrix, the \textbf{indptr} array contains $m+1$ elements, where the first entry is always 0.
-To extract the values of row $i$, we set $s = \textbf{indptr}[i]$ and $t = \textbf{indptr}[i+1]$. Then, the values of the items at row $i$ are $\textbf{data}[s:t]$ with columns corresponding to the array $\textbf{indices}[s:t]$. 
 
-% With this information, the entire matrix can be accurately represented efficiently in memory.
-% With the sparse format, the entire adjacency matrix can be represented with less than 4GB of memory.
+To extract the values of an arbitrary row $i$, we set $s = \textbf{indptr}[i]$ and $t = \textbf{indptr}[i+1]$. Then, the values of the items at row $i$ are $\textbf{data}[s:t]$ with columns corresponding to the array $\textbf{indices}[s:t]$. 
 
-We provide an example of the format with the following matrix.
+We provide an example of the format with the following matrix,
 \begin{equation*}
     \begin{pmatrix}
         52 & 0  & 0  & 0  \\
         0  & 0  & 43 & 0  \\
         67 & 0  & 0  & 81  \\
         0  & 20 & 0  & 0  \\
-    \end{pmatrix}
+    \end{pmatrix}.
 \end{equation*}
-The \textbf{data} array contains the values $[52, 43, 67, 81, 20]$. The \textbf{indices} array contains the values $[0, 2, 0, 3, 1]$.
-The \textbf{indptr} array contains the values $[0, 1, 2, 4, 5]$.
+Then, \textbf{data} = $[52, 43, 67, 81, 20]$, \textbf{indices} = $[0, 2, 0, 3, 1]$, and \textbf{indptr} = $[0, 1, 2, 4, 5]$. The number $52$ appears first in the matrix in the 0th column, so \textbf{data}$[0] = 52$ and \textbf{indices}$[0] = 0$.
 
 In this example, the gains of using a sparse matrix are minimal. Instead of 16 entries, the matrix is represented with 15 entries. However, when there are far more zeroes than non-zero elements, the sparse format is far smaller.
 
 
-
 \section{Degree Distribution}
 
-We describe the distribution for the indegree and outdegree of the strongly connected network.
+The degree of a node in an undirected graph is the number of edges connecting that node. For a directed graph we need to distinguish between the edges leaving and entering the node. 
+The outdegree of a node is the number of edges leave from that node.
+The indegree of a node in a directed graph is the number of edges that enter that node from another node.
 
+We describe the distribution of nodes in the Wikipedia hyperlink graph.
+The indegree distribution has a smooth exponential descent, while the outdegree distribution grows sharply before descending. 
+Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find 1,468 of vertices in the network with indegree larger than 10,000.
 
-The indegree distribution has a smooth exponential descent. Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find 1,468 of vertices in the network with indegree larger than 10,000.
-
-The outdegree distribution grows sharply before declining. It has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the relevance of the article and the size of the graph.
+The outdegree distribution has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the size of the graph.
 
 
 \begin{figure}[H]
@@ -158,17 +151,14 @@ The outdegree distribution grows sharply before declining. It has a much smaller
 
 \section{Centrality}
 
-A recurring problem for large networks is determining which nodes are important.
-There are many different measures of centrality which rank vertices. 
-We evaluate three different centrality metrics in the Wikipedia hyperlink graph.
-
-
+There are millions of nodes in the Wikipedia network, but not all of them are important.
+The centrality measures provide methods of ranking nodes based on different measures of importance.
+We evaluate and compare three different centrality metrics in the Wikipedia hyperlink graph.
 
 \subsection{Degree Centrality}
 
 Degree centrality is one of the simplest forms of centrality.
-The indegree of a vertex in a directed graph is the number of edges that point to the vertex.
-The outdegree of a vertex is the number of edges originating from that vertex.
+
 To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
 
 \subsubsection{Results}
