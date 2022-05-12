@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[margin=1.5in, includeheadfoot]{geometry}
+\usepackage{biblatex-chicago}
 \usepackage{fancyhdr}
 \usepackage[fleqn]{amsmath}
 \usepackage{amssymb, amsthm}
@@ -11,7 +12,7 @@
 \usepackage[]{float}
 \usepackage{graphicx}
 \usepackage{subfig}
-\usepackage{fullpage}
+\usepackage{hyperref}
 \graphicspath{ {./images/} }
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -58,7 +59,7 @@
 
 \begin{document}
 \maketitle
-% \tableofcontents
+\tableofcontents
 
 \section{Introduction}
 
@@ -90,7 +91,9 @@ We employ sparse matrices to efficiently store the adjacency matrix of the graph
 Instead of storing the whole adjacency matrix, a sparse matrix stores only the location of non-zero elements.
 We use the compressed sparse row format to store the matrix.
 
-The Python package scipy provides an implementation of the csr matrix format holds three arrays that make up the graph. The \textbf{data} array contains the values for the non-zero elements in the matrix.
+The Python package scipy provides an implementation of the csr matrix format holds three arrays that make up the graph.
+\autocite{scipy_doc}
+The \textbf{data} array contains the values for the non-zero elements in the matrix.
 The \textbf{indices} array is the same length of the data array and contains the index of the corresponding column for each non-zero element.
 The \textbf{indptr} array maps the matrix values to the rows in the matrix.
 For an $m\times n$ matrix, the \textbf{indptr} array contains $m+1$ elements, where the first entry is always 0.
@@ -155,8 +158,10 @@ The outdegree distribution grows sharply before declining. It has a much smaller
 
 \section{Centrality}
 
-A problem in graph theory is how to rank vertices in a graph by their importance. That is, figuring out which nodes in a network are central.
-We evaluate three different metrics of centrality in the Wikipedia hyperlink graph.
+A recurring problem for large networks is determining which nodes are important.
+There are many different measures of centrality which rank vertices. 
+We evaluate three different centrality metrics in the Wikipedia hyperlink graph.
+
 
 
 \subsection{Degree Centrality}
@@ -165,13 +170,8 @@ Degree centrality is one of the simplest forms of centrality.
 The indegree of a vertex in a directed graph is the number of edges that point to the vertex.
 The outdegree of a vertex is the number of edges originating from that vertex.
 To compute the indegree and outdegree we simply sum the rows and columns of the adjacency matrix.
-% The adjacency matrix is not even required to compute degree centrality, 
 
-
-
-
-
-
+\subsubsection{Results}
 \begin{figure}[H]
     \centering
     \caption{Highest Indegree}
@@ -212,9 +212,7 @@ For similar reasons, the articles \textbf{Wayback\_Machine} and \textbf{OCLC} al
 \subsection{Closeness Centrality}
 
 
-The motivation for closeness centrality is to find how close one node is to different nodes in the network.
-% The idea of closeness centrality is how close any node is to another node in the graph.
-
+The motivation for closeness centrality is to find the nodes that are closest to the other nodes in the network.
 
 We are given a directed graph $G(V,E)$ with $n$ nodes and $m$ edges.
 A directed graph is strongly connected if there is path between any two vertices. We assume that $G$ is strongly connected.
@@ -254,14 +252,6 @@ Since the graph is unweighted, we use a breadth first search to solve the SSSP p
 
 \subsubsection{Results}
 
-% A limitation of the implementation of the algorithm is that each breadth-first search takes 5 minutes to complete. Thus, to complete the process in a reasonable amount of time requires limiting the amount of iterations decreasing accuracy. This could be improved in future research by re-implementing the breadth first search in C, or another compiled language.
-
-% The biggest difference with the closeness centrality metric is that the World War II metric is at the top.
-% This is the only article that is not a country or a reference vertex to make the top of the list for the metrics.
-% It's not surprising that World War II would be a central topic on Wikipedia, nearly all countries 
-
-
-
 \begin{figure}[H]
     \caption[fig]{Closeness Centrality}
     \centering
@@ -291,30 +281,27 @@ Since the graph is unweighted, we use a breadth first search to solve the SSSP p
 \end{figure}
 
 The World War II article is the only topic so far that is not a reference vertex or a country that has a high centrality. The importance of World War II within Wikipedia is not surprising. An unofficial Wikipedia game developed around 2010 called Clicks to Hitler, in which the participants try to reach the aforementioned page as quickly as possible.
+\autocite{cornell}
 Most articles link to at least one country, and most countries link to the World War II article.
 % https://blogs.cornell.edu/info2040/2019/10/23/the-significance-of-hitlers-wikipedia-page/
 
 \subsection{Katz Centrality}
 
-The Katz Centrality measure was introduced in 1953 by Leo Katz. 
+The Katz Centrality measure was introduced in 1953 by Leo Katz.
+\autocite{katz1953}
 In this measure of centrality, the weighted count of incoming paths to each node determines it's importance in the network. The attenuation factor $\alpha$ changes how quickly the weights decrease the importance of walks.
 
 We define Katz Centrality as,
 \begin{equation*}
     C_{\textrm{Katz}}(i) = \sum_{j} (I_{ij} + \alpha A_{ij} + \alpha^2 A_{ij}^2 + \alpha^3 A_{ij}^3 + \dots).
 \end{equation*}
+\autocite{katz2011}
 
 Then,
 \begin{align*}
-    C_{\textrm{Katz}} &= (I + \alpha A + \alpha^2 A^2 + \alpha^3 A^3 + \dots) \begin{pmatrix}
-        1 & \dots & 1
-    \end{pmatrix}^T \\
-    &= \sum^\infty_{n=1} (\alpha^n A^n)\begin{pmatrix}
-    1 & 1 & \dots & 1
-\end{pmatrix}^T \\ 
-&= (I - \alpha A)^{-1} \begin{pmatrix}
-    1 & 1 & \dots & 1
-\end{pmatrix}^T 
+    C_{\textrm{Katz}} &= (I + \alpha A + \alpha^2 A^2 + \alpha^3 A^3 + \dots) \overrightarrow{1}\\
+    &= \sum^\infty_{n=1} (\alpha^n A^n)\overrightarrow{1} \\ 
+&= (I - \alpha A)^{-1} \overrightarrow{1} 
 \end{align*}
 % https://www.youtube.com/watch?v=DfV-pjRTlLg
 
@@ -345,6 +332,7 @@ We then define the following recurrence relation,
     x_k = \alpha A x_{k+1} + \overrightarrow{1}
 \end{align*} where the $x_k$ is an approximation of $C_{\textrm{Katz}}$. We then iterate until the norm of $x_{k} - x_{k-1}$ reaches a desired error.
 
+\subsubsection{Results}
 \begin{figure}[H]
     \centering
     \caption{Katz Centrality Results}
@@ -378,9 +366,9 @@ The top five nodes that are listed all have very high indegree.
 The majority of the highest scoring vertices seem to be reference nodes, such as \textbf{International\_Standard\_Serial\_Number}, \textbf{Virtual\_International Authority\_File}, and \textbf{PubMed}.
 The only exceptions are the two country articles, \textbf{United\_States} and \textbf{France}.
 
-\subsection{Conclusions}
+% \subsection{Comparing Measures}
 
-The Katz Centrality and Indegree Centrality metrics
+% The Katz centrality and indegree centrality metrics both emphasize the importance of many citations from other articles. However, the centrality 
 
 
 \section{Graph Radius \& Diameter}
@@ -401,7 +389,7 @@ In the Wikipedia hyperlink graph the diameter can be conceptualized as given any
 
 
 A naïve method of estimating the radius and the diameter is running multiple breadth first searches from random nodes and returning the minimum and maximum of the result. Boitmanis et. al presents a better approximation algorithm.
-
+\autocite{boitmanis}
 % https://sci-hub.se/https://dl.acm.org/doi/10.1007/11764298_9
 Instead of starting the breadth first search from a uniformly random node, we start the breadth first search from the node furthest from the set of already processed nodes. This can be done in $O(n)$ time by keeping track of the results each breadth first search.
 
@@ -413,52 +401,18 @@ Using this search we can identify a tunnel of articles, from "Billboard Top Rock
 We estimate the radius and diameter of the 94.7\% of vertices that are strongly connected.
 Using 20 iterations, the radius and diameter are both estimated at 33. That is, the eccentricity of the 20 tested nodes are all 33.
 It is not clear if the estimated radius and diameter corresponds to the actual radius and diameter.
-
 If the estimation is accurate, then from any article, the rest of the cluster is at most 33 clicks away.
-This measure is robust to change against removing nodes. Removing the first 10,000 vertices with the highest indegree results in no change to the estimated radius and diameter. 
+This measure is robust to change against removing nodes.
 
+Removing the first 10,000 vertices with the highest indegree results in no change to the estimated radius and diameter. 
+With 20 iterations, all the tested eccentricities are still 33. This means that there are many different shortest paths between any two nodes in the network. When one node in the path is removed, there are still many paths available.
 
 \section{Further Research}
 
 One property of the hyperlink graph that isn't explored here is the order of the links. It is observable that repeatedly clicking the first link in nearly all articles will eventually lead to the Philosophy article. This is likely due to the definitional nature of the first paragraph in the article, that the first link in the article further abstracts the page.
 
+% \subsection*{}
 
-% Another centrality measure that has not been implemented yet is betweeness centrality. This 
-
-
-\section{Appendix}
-
-
-\subsection{Katz Centrality}
-\linespread{1}
-\begin{lstlisting}[language=Python]
-def katz_centrality(
-graph,
-alpha: float = 0.1,
-beta: float = 1,
-max_iter: int = 10000,
-tol: float = 1.0e-6,
-normalized: bool = True
-):
-    A = graph.adjacency.transpose()
-    n = graph.size
-    e = np.ones((n, 1))
-    last = e.copy()
-    for _ in range(max_iter):
-        current = alpha * A.dot(last) + beta * e
-        error = sum((abs(current[i] - last[i]) for i in range(n)))
-        if error < n * tol:
-            centrality = current.flatten().tolist()
-            if normalized:
-                norm = np.sign(sum(centrality)) * np.linalg.norm(centrality)
-                return map(float, centrality / norm)
-            else:
-                return centrality
-        last = current.copy()
-
-    raise ConvergenceError(f"Failed to converge in {max_iter} iterations.")
-\end{lstlisting}
-
-
+\printbibliography
 
 \end{document}
