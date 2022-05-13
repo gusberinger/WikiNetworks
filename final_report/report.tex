@@ -65,21 +65,27 @@
 \section{Introduction}
 
 Every Wikipedia article contains links to other articles. If the article references a concept that is also another Wikipedia article, the text can link to that article.
-The Wikipedia hyperlink graph is the graph with every article as a vertex. The edges between the vertices are the links between the articles.
+The Wikipedia hyperlink graph is the graph with every article as a node. The edges between the nodes are the links between the articles.
 
 It is observable that the Wikipedia hyperlink graph is a small world network.
-A small-world network is a graph where each vertex is connected to few vertices, but can reach all other vertices within a few steps.
+A small-world network is a graph where each node is connected to few nodes, but can reach all other nodes within a few steps.
 
-An undirected graph is connected when there is a path between any two vertices in the graph.
-If there is a path between any two vertices in a directed graph, it is a strongly connected.
+An undirected graph is connected when there is a path between any two nodes in the graph.
+If there is a path between any two nodes in a directed graph, it is a strongly connected.
 If a directed graph has an undirected graph that is connected, it is weakly connected.
 
-% TODO: define adjacency matrix.
+The adjacency matrix is defined as follows,
+\begin{equation*}
+    A_{i, j} = \begin{cases}
+        1 & \textrm{an edge exists between $i$ and $j$} \\
+        0 & \textrm{otherwise}
+    \end{cases}.
+\end{equation*}
 
 
 \section{Sparse Adjacency Matrices}
 
-The Wikipedia hyperlink graph has 6,102,910 vertices, which creates challenges for representing the graph in a program.
+The Wikipedia hyperlink graph has 6,102,910 nodes, which creates challenges for representing the graph in a program.
 If we create an entry for every number in the adjacency matrix of a graph with $n$ nodes, the program requires $n^2$ space in total.  
 For the wikipedia hyperlink graph, that's over $3.7 * 10^{13}$ entries.
 However, most of the numbers in the adjacency matrix are zero, so can store the matrix more efficiently by only keeping track of non-zero entries.
@@ -111,15 +117,22 @@ In this example, the gains of using a sparse matrix are minimal. Instead of 16 e
 
 \section{Degree Distribution}
 
-The degree of a node in an undirected graph is the number of edges connecting that node. For a directed graph we need to distinguish between the edges leaving and entering the node. 
-The outdegree of a node is the number of edges leave from that node.
+The degree of a node in an undirected graph is the number of edges connecting that node. For a directed graph we distinguish between the edges leaving and entering a node. 
+The outdegree of a node is the number of edges that leave from that node.
 The indegree of a node in a directed graph is the number of edges that enter that node from another node.
+
+We define the indegree $d_{in}$ and outdegree $d_{out}$ mathematically:
+Given a graph with $n$ nodes,
+\begin{align*}
+    d_{out} (v) & = \sum^n_{i=0} A_{v, i} \\
+    d_{in} (v) & = \sum^n_{j=0} A_{j, i}. 
+\end{align*}
 
 We describe the distribution of nodes in the Wikipedia hyperlink graph.
 The indegree distribution has a smooth exponential descent, while the outdegree distribution grows sharply before descending. 
-Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find 1,468 of vertices in the network with indegree larger than 10,000.
+Most of the network has a small indegree. We find that 93.84\% of the network has a indegree smaller than 300. However, there are still plenty of nodes with large indegree. We find 1,468 of nodes in the network with indegree larger than 10,000.
 
-The outdegree distribution has a much smaller maximum of 11,897 vertices. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the size of the graph.
+The outdegree distribution has a much smaller maximum of 11,897 nodes. This is because the outdegree is limited by the size of the article, but the indegree is only limited by the size of the graph.
 
 
 \begin{figure}[H]
@@ -191,11 +204,15 @@ To compute the indegree and outdegree we simply sum the rows or columns of the a
 \end{figure}
     
 There are several pages in the Wikipedia network with excessive indegree compared to their outdegree. 
-The article \textbf{International\_Standard\_Book\_Number} has an indegree of 1,322,167, but only an outdegree of 559. In fact, 20\% of all vertices in the graph have an edge connecting towards \textbf{International\_Standard\_Book\_Number}.
+The article \textbf{International\_Standard\_Book\_Number} has an indegree of 1,322,167, but only an outdegree of 559. In fact, 20\% of all nodes in the graph have an edge connecting towards \textbf{International\_Standard\_Book\_Number}.
 
 This is because of the automatic linking from references.
 Any article with a citation that has an ISBN identifier will link to the page \textbf{International\_Standard\_Book\_Number}.
 For similar reasons, the articles \textbf{Wayback\_Machine} and \textbf{OCLC} all have all have excessive indegree compared to their outdegree.
+
+% TODO: OUTDEGREE
+
+The outdegree results are even less useful. Instead of identifying the most important nodes, the highest outdegree only corresponds to the largest list.
 
 \subsection{Closeness Centrality}
 
@@ -207,36 +224,40 @@ The distance $d(u, v)$ between nodes $u$ and $v$ is the shortest possible path b
 Since $G$ is strongly connected, $d(u, v)$ always exists.
 
 
-% Given a graph $G(V, E)$, the distance $d(u, v)$ between  vertices 
-Eppstein defines closeness centrality $c_v$ of a vertex $v$ as,
+% Given a graph $G(V, E)$, the distance $d(u, v)$ between  nodes 
+Eppstein\autocite{eppstein} defines closeness centrality $c_v$ of a node $v$ as,
 \begin{equation*}
-    c_v = \frac{n-1}{\sum_{u \in V}d(u,v)}
+    c_v = \frac{n-1}{\sum_{u \in V}d(u,v)}.
 \end{equation*} 
 The numerator $n-1$ normalizes the measure, making it comparable across different graphs.
 
+% We define the following terms necessary for finding closeness centrality.
+% The closeness centrality measure is an extension of the all pairs shortest path problem. That 
 
-The single source shortest path problem involves finding the distance from a single source to all other nodes in the graph. For undirected graphs, 
-The all pairs shortest path problem is to find the shortest path between all possible pairs of vertices in the graph.
-To find the exact closeness centrality for all nodes in the network, we must solve the all pairs shortest path problem. However, for large networks this is extremely computationally intensive. 
+The single source shortest path (SSSP) problem involves finding the distance from a single source node to all other nodes in the graph.
+The all pairs shortest path (APSP) problem involves finding the shortest path between all possible pairs of nodes in the graph.
+
+To find the exact closeness centrality for all nodes in the network, we must solve the all pairs shortest path problem. However, for large networks this is computationally intensive. 
 Eppstein provides a near-linear time approximation for centrality when the diameter is $O(\log n)$. That is, when the graph is a small world network. Since the Wikipedia hyperlink graph is a small world network, this algorithm is a good fit.
 
-Then Eppstein presents the following algorithm RAND for computing closeness centrality,
+Then, Eppstein\autocite{eppstein} presents the following algorithm for computing closeness centrality,
 \begin{enumerate}[1.]
     \item 
     Let k be the number of iterations needed to obtain the desired error bound.
 
     \item
-    In iteration $i$, pick vertex $v_i$ uniformly at random from $G$ and solve the single source shortest path problem with $v_i$ as the source.
+    In iteration $i$, pick node $v_i$ uniformly at random from $G$ and solve the single source shortest path problem with $v_i$ as the source.
 
     \item 
     Let
     \begin{equation*}
         \hat{c}_ua = \frac{1}{\sum^k_{i=1} \frac{n d(v_i, u)}{k(n-1)}}
     \end{equation*}
-    be the centrality estimator for vertex $u$.
+    be the centrality estimator for node $u$.
 \end{enumerate}
 
-Since the graph is unweighted, we use a breadth first search to solve the SSSP problem.
+Since the graph is unweighted, we solve the SSSP problem in step two using a breadth first search. If the graph was unweighted, Dijkstra's algorithm could solve the SSSP in running time $O(E + V \log V)$.
+\autocite{clrs} % TODO: verify.
 
 \subsubsection{Results}
 
@@ -268,9 +289,11 @@ Since the graph is unweighted, we use a breadth first search to solve the SSSP p
 \end{tabular}
 \end{figure}
 
-The World War II article is the only topic so far that is not a reference vertex or a country that has a high centrality. The importance of World War II within Wikipedia is not surprising. An unofficial Wikipedia game developed around 2010 called Clicks to Hitler, in which the participants try to reach the aforementioned page as quickly as possible.
-\autocite{cornell}
+The World War II article is the only topic so far that is not a reference node or a country that has a high centrality.
+The importance of World War II within Wikipedia is not surprising.
 Most articles link to at least one country, and most countries link to the World War II article.
+An unofficial Wikipedia game developed around 2010 called Clicks to Hitler, in which the participants try to reach the titular page as quickly as possible.
+\autocite{cornell}
 % https://blogs.cornell.edu/info2040/2019/10/23/the-significance-of-hitlers-wikipedia-page/
 
 \subsection{Katz Centrality}
@@ -279,7 +302,7 @@ The Katz Centrality measure was introduced in 1953 by Leo Katz.
 \autocite{katz1953}
 In this measure of centrality, the weighted count of incoming paths to each node determines it's importance in the network. The attenuation factor $\alpha$ changes how quickly the weights decrease the importance of walks.
 
-We define Katz Centrality as,
+Katz Centrality is defined by,
 \begin{equation*}
     C_{\textrm{Katz}}(i) = \sum_{j} (I_{ij} + \alpha A_{ij} + \alpha^2 A_{ij}^2 + \alpha^3 A_{ij}^3 + \dots).
 \end{equation*}
@@ -306,8 +329,8 @@ Then, $\max(\lambda_1, \dots, \lambda_n) < \frac{1}{\alpha}$. Thus, $I - \alpha 
 % https://www.math.fsu.edu/~bertram/lectures/Centrality.pdf
 
 
-With extremely large matrices the inverse is difficult and imprecise to compute directly with a runtime of $O(n^3)$.
-Therefore, we use power iteration to compute the measure instead.
+With extremely large matrices the inverse is difficult and imprecise to compute directly, with an impracticable runtime of $O(n^3)$.
+Therefore, we use power iteration algorithm to compute the measure instead.
 
 We have,
 \begin{align*}
@@ -317,7 +340,8 @@ We have,
 \end{align*}
 We then define the following recurrence relation,
 \begin{align*}
-    x_k = \alpha A x_{k+1} + \overrightarrow{1}
+    x_0 & = \overrightarrow{1} \\
+    x_k & = \alpha A x_{k+1} + \overrightarrow{1}
 \end{align*} where the $x_k$ is an approximation of $C_{\textrm{Katz}}$. We then iterate until the norm of $x_{k} - x_{k-1}$ reaches a desired error.
 
 \subsubsection{Results}
@@ -351,7 +375,7 @@ We then define the following recurrence relation,
 
 We see that high degree nodes dominate in Katz Centrality.
 The top five nodes that are listed all have very high indegree.
-The majority of the highest scoring vertices seem to be reference nodes, such as \textbf{International\_Standard\_Serial\_Number}, \textbf{Virtual\_International Authority\_File}, and \textbf{PubMed}.
+The majority of the highest scoring nodes seem to be reference nodes, such as \textbf{International\_Standard\_Serial\_Number}, \textbf{Virtual\_International Authority\_File}, and \textbf{PubMed}.
 The only exceptions are the two country articles, \textbf{United\_States} and \textbf{France}.
 
 % \subsection{Comparing Measures}
@@ -361,7 +385,7 @@ The only exceptions are the two country articles, \textbf{United\_States} and \t
 
 \section{Graph Radius \& Diameter}
 
-The eccentricity of a vertex $v_i$ is the greatest distance between any other vertex $v$. That is, $e(v_i) = \max d(v_i, v)_{v \in V}$.
+The eccentricity of a node $v_i$ is the greatest distance between any other node $v$. That is, $e(v_i) = \max d(v_i, v)_{v \in V}$.
 
 The radius of a graph is the minimum eccentricity of the entire graph, while the diameter of a graph is the maximum eccentricity.
 
@@ -386,14 +410,14 @@ Using this search we can identify a tunnel of articles, from "Billboard Top Rock
 
 \subsection{Results}
 
-We estimate the radius and diameter of the 94.7\% of vertices that are strongly connected.
+We estimate the radius and diameter of the 94.7\% of nodes that are strongly connected.
 Using 20 iterations, the radius and diameter are both estimated at 33. That is, the eccentricity of the 20 tested nodes are all 33.
 It is not clear if the estimated radius and diameter corresponds to the actual radius and diameter.
 If the estimation is accurate, then from any article, the rest of the cluster is at most 33 clicks away.
 This measure is robust to change against removing nodes.
 
-Removing the first 10,000 vertices with the highest indegree results in no change to the estimated radius and diameter. 
-With 20 iterations, all the tested eccentricities are still 33. This means that there are many different shortest paths between any two nodes in the network. When one node in the path is removed, there are still many paths available.
+Removing the first 10,000 nodes with the highest indegree results in no change to the estimated radius and diameter. 
+This means that there are many different shortest paths between any two nodes in the network. When one node in the path is removed, there are still many paths available.
 
 \section{Further Research}
 
